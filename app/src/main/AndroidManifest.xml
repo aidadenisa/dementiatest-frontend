@@ -19,10 +19,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".login.activities.RegisterActivity" />
-        <activity android:name=".UserAreaActivity" />
-
+        <activity android:name=".main.activities.PersonalInformationTestActivity"></activity>
     </application>
-
-
 
 </manifest>

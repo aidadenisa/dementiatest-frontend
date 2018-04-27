@@ -1,5 +1,7 @@
 package blog.aida.dementiatest_frontend.login.requests;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 import com.android.volley.AuthFailureError;
@@ -22,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import blog.aida.dementiatest_frontend.main.activities.models.UserAccount;
+import blog.aida.dementiatest_frontend.main.models.UserAccount;
 
 /**
  * Created by aida on 15-Apr-18.
@@ -72,18 +74,13 @@ public class LoginRequest extends JsonObjectRequest {
 //        return "application/json; charset=utf-8";
 //    }
 //
-//    @Override
-//    public Map<String, String> getHeaders() throws AuthFailureError {
-//        Map<String, String> headers = super.getHeaders();
-//        int a = 2;
-//        return headers;
-//    }
-
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         return headers;
     }
+
+
 
 }

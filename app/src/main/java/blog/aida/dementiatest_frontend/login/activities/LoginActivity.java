@@ -28,7 +28,8 @@ import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.login.requests.LoginRequest;
 import blog.aida.dementiatest_frontend.login.requests.RegisterRequest;
 import blog.aida.dementiatest_frontend.login.validators.DataValidator;
-import blog.aida.dementiatest_frontend.main.activities.models.UserAccount;
+import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
+import blog.aida.dementiatest_frontend.main.models.UserAccount;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -112,10 +113,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         storeToken(token);
 
-
-
-
-
+                        logUserIntoApp();
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -135,6 +133,13 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         queue.add(loginRequest);
+
+    }
+
+    private void logUserIntoApp() {
+
+        Intent internalTestIntent = new Intent(LoginActivity.this, PersonalInformationTestActivity.class);
+        LoginActivity.this.startActivity(internalTestIntent);
 
     }
 

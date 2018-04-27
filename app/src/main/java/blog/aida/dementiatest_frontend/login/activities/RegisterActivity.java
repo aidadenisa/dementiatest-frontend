@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.login.requests.RegisterRequest;
 import blog.aida.dementiatest_frontend.login.validators.DataValidator;
-import blog.aida.dementiatest_frontend.main.activities.models.UserAccount;
+import blog.aida.dementiatest_frontend.main.models.UserAccount;
 
 public class RegisterActivity extends AppCompatActivity {
 

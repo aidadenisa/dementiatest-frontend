@@ -1,4 +1,4 @@
-package blog.aida.dementiatest_frontend.main.activities.models;
+package blog.aida.dementiatest_frontend.main.models;
 
 import java.util.Date;
 

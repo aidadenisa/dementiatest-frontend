@@ -12,7 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import blog.aida.dementiatest_frontend.main.activities.models.UserAccount;
+import blog.aida.dementiatest_frontend.main.models.UserAccount;
 
 /**
  * Created by aida on 08-Apr-18.
