@@ -1,19 +1,27 @@
 package blog.aida.dementiatest_frontend.main.adapters;
 
+import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Context;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.Calendar;
 import java.util.List;
 
 import blog.aida.dementiatest_frontend.R;
+import blog.aida.dementiatest_frontend.main.fragments.DatePickerFragment;
 import blog.aida.dementiatest_frontend.main.models.Question;
 
 /**
@@ -25,9 +33,11 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
     private List<Question> questions;
     private Context parentContext;
     private ViewGroup parent;
+    private Activity activity;
 
-    public PersonalInformationTestAdapter(List<Question> questions) {
+    public PersonalInformationTestAdapter(List<Question> questions, Activity activity) {
         this.questions = questions;
+        this.activity = activity;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -90,6 +100,57 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
             this.renderYesOrNoConfiguration(currentQuestion, holder);
         }
 
+        if(currentQuestion.getDateConfiguration() != null && currentQuestion.getDateConfiguration()) {
+            this.renderDatePicker(currentQuestion, holder);
+        }
+
+    }
+
+    private void renderDatePicker(Question currentQuestion, ViewHolder holder) {
+
+
+//        final EditText dateInput = new EditText(parentContext);
+//
+//        DatePicker datePicker = new DatePicker(parentContext);
+//
+//            DialogFragment newFragment = new DatePickerFragment();
+//            newFragment.show(activity.getSupportFragmentManager(), "date-picker");
+//
+//        }
+//
+
+        final Button button = new Button(parentContext);
+        final TextView dateText = new TextView(parentContext);
+
+        holder.questionLayout.addView(dateText);
+        holder.questionLayout.addView(button);
+
+        button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                final Calendar c = Calendar.getInstance();
+                int mYear = c.get(Calendar.YEAR); // current year
+                int mMonth = c.get(Calendar.MONTH); // current month
+                int mDay = c.get(Calendar.DAY_OF_MONTH); // current day
+                // date picker dialog
+                DatePickerDialog datePickerDialog = new DatePickerDialog(parentContext,
+                        new DatePickerDialog.OnDateSetListener() {
+
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+                                // set day of month , month and year value in the edit text
+                                dateText.setText(dayOfMonth + "/"
+                                        + (monthOfYear + 1) + "/" + year);
+
+                            }
+                        }, mYear, mMonth, mDay);
+                datePickerDialog.show();
+
+            }
+        });
     }
 
     private void renderYesOrNoConfiguration(Question currentQuestion, ViewHolder holder) {

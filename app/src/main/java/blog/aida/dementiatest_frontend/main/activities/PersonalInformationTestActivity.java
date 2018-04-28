@@ -77,7 +77,7 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
                                     questions.add(question);
                                 }
 
-                                mAdapter = new PersonalInformationTestAdapter(questions);
+                                mAdapter = new PersonalInformationTestAdapter(questions, PersonalInformationTestActivity.this);
                                 recyclerView.setAdapter(mAdapter);
 
                             } catch (JSONException e) {
