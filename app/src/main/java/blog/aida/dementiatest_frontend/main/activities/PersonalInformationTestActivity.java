@@ -43,7 +43,7 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
         // improve performance if you know that changes
         // in content do not change the layout size
         // of the RecyclerView
-        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true);
         // use a linear layout manager
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -80,7 +80,6 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
                                 mAdapter = new PersonalInformationTestAdapter(questions);
                                 recyclerView.setAdapter(mAdapter);
 
-int a=2;
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -97,6 +96,9 @@ int a=2;
         );
 
         queue.add(getQuestions);
+
+
+
 
 
 
