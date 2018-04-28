@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.util.List;
@@ -83,6 +85,32 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
         if(currentQuestion.getChoices() != null) {
             this.renderChoices(currentQuestion, holder);
         }
+
+        if(currentQuestion.getYesOrNoConfiguration() != null && currentQuestion.getYesOrNoConfiguration()) {
+            this.renderYesOrNoConfiguration(currentQuestion, holder);
+        }
+
+    }
+
+    private void renderYesOrNoConfiguration(Question currentQuestion, ViewHolder holder) {
+
+        RadioGroup  radioGroup = new RadioGroup(parentContext);
+
+        RadioButton yesButton = new RadioButton(parentContext);
+        yesButton.setText("YES");
+        radioGroup.addView(yesButton);
+
+        RadioButton noButton = new RadioButton(parentContext);
+        noButton.setText("NO");
+        radioGroup.addView(noButton);
+
+        if(currentQuestion.getOnlyOccasionallyOption() != null && currentQuestion.getOnlyOccasionallyOption()) {
+            RadioButton occasionallyButton = new RadioButton(parentContext);
+            occasionallyButton.setText("Only Occasionally");
+            radioGroup.addView(occasionallyButton);
+        }
+
+        holder.questionLayout.addView(radioGroup);
 
     }
 
