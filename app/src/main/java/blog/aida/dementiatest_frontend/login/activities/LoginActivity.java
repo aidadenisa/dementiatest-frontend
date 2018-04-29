@@ -17,19 +17,16 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.login.requests.LoginRequest;
-import blog.aida.dementiatest_frontend.login.requests.RegisterRequest;
 import blog.aida.dementiatest_frontend.login.validators.DataValidator;
 import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
 import blog.aida.dementiatest_frontend.main.models.Patient;
@@ -157,22 +154,11 @@ public class LoginActivity extends AppCompatActivity {
         if(loggedInUser.getRole() == 0 ) {
             //this is a patient
 
-            Patient patient = patientService.getPatientData(queue, loggedInUser, this);
+            patientService.managePatientLogin(queue, loggedInUser, this);
 
-            if(patient == null) {
-
-                patientService.createNewPatient(queue, loggedInUser, this);
-
-                Intent internalTestIntent = new Intent(LoginActivity.this, PersonalInformationTestActivity.class);
-                LoginActivity.this.startActivity(internalTestIntent);
-
-            } else {
-                //TODO: GO TO THE TESTS PAGE
-            }
-
-
+        } else {
+            //TODO: WHAT HAPPENS WHEN THIS IS A DOCTOR
         }
-
 
     }
 

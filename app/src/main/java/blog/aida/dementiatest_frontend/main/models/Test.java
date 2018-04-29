@@ -12,4 +12,23 @@ public class Test {
 
     private Patient patient;
 
+    public int getId() {
+        return id;
+    }
+
+    public TestConfiguration getTestConfiguration() {
+        return testConfiguration;
+    }
+
+    public void setTestConfiguration(TestConfiguration testConfiguration) {
+        this.testConfiguration = testConfiguration;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
 }

@@ -1,7 +1,7 @@
 package blog.aida.dementiatest_frontend.main.services;
 
 import android.app.Activity;
-import android.test.ActivityUnitTestCase;
+import android.content.Intent;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -10,6 +10,7 @@ import com.android.volley.VolleyError;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
 import blog.aida.dementiatest_frontend.main.models.Patient;
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
 import blog.aida.dementiatest_frontend.main.requests.GetRequest;
@@ -23,14 +24,19 @@ import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUES
 
 public class PatientService {
 
+    private Patient patient;
 
-    public Patient getPatientData(RequestQueue queue, UserAccount userAccount, Activity currentActivity) {
+    public PatientService() {
+        patient = new Patient();
+    }
+
+    public void managePatientLogin(final RequestQueue queue, final UserAccount userAccount, final Activity currentActivity) {
 
         GetRequest getPatientData = new GetRequest(
-                REQUEST_URL + "/users/" + userAccount.getId() + "/patient",
-                new Response.Listener<org.json.JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
+            REQUEST_URL + "/users/" + userAccount.getId() + "/patient",
+            new Response.Listener<org.json.JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
 
                         JSONObject responseHeaders, responseBody;
 
@@ -38,7 +44,17 @@ public class PatientService {
                             try {
                                 responseBody = response.getJSONObject("data");
 
-                                int a = 2;
+                                //TODO: UNCOMMENT THIS AFTER FINISHING WITH THE PERSONAL TEST DEVELOPMENT
+//                                if(responseBody == null) {
+
+//                                    createNewPatient(queue, userAccount, currentActivity);
+
+                                    Intent internalTestIntent = new Intent(currentActivity.getApplicationContext(), PersonalInformationTestActivity.class);
+                                    currentActivity.startActivity(internalTestIntent);
+
+//                                } else {
+//                                    //TODO: GO TO THE TESTS PAGE
+//                                }
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -47,16 +63,15 @@ public class PatientService {
                     }
                 }, new Response.ErrorListener() {
 
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        System.out.println("aida request response " + error.getMessage());
-                        error.printStackTrace();
-                    }
-                }, currentActivity
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    System.out.println("aida request response " + error.getMessage());
+                    error.printStackTrace();
+                }
+            }, currentActivity
         );
 
         queue.add(getPatientData);
-        return null;
     }
 
     public void createNewPatient(RequestQueue queue, UserAccount loggedInUser, Activity currentActivity) {
@@ -69,7 +84,6 @@ public class PatientService {
                     @Override
                     public void onResponse(JSONObject response) {
 
-                        int a = 2;
                     }
                 }, new Response.ErrorListener() {
 

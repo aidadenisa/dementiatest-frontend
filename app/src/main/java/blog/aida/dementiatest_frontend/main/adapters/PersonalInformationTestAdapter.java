@@ -18,11 +18,16 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.main.fragments.DatePickerFragment;
+import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.Question;
 
 /**
@@ -32,6 +37,7 @@ import blog.aida.dementiatest_frontend.main.models.Question;
 public class PersonalInformationTestAdapter extends RecyclerView.Adapter<PersonalInformationTestAdapter.ViewHolder> {
 
     private List<Question> questions;
+    private Map<Integer, String> answers;
     private Context parentContext;
     private ViewGroup parent;
     private Activity activity;
@@ -39,6 +45,7 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
     public PersonalInformationTestAdapter(List<Question> questions, Activity activity) {
         this.questions = questions;
         this.activity = activity;
+        this.answers = new HashMap<>();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -53,7 +60,6 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
             questionText = (TextView) itemView.findViewById(R.id.question_text);
             questionLayout = (LinearLayout) itemView.findViewById(R.id.question_linear_layout);
         }
-
 
     }
 
@@ -86,6 +92,7 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
     public int getItemCount() {
         return questions.size();
     }
+
 
     private void renderQuestion(PersonalInformationTestAdapter.ViewHolder holder, Question currentQuestion) {
 
@@ -177,24 +184,54 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
     }
 
     private void renderChoices(Question currentQuestion, ViewHolder holder) {
+
+        int position = holder.getAdapterPosition();
+        String[] previousSelectedChoices = null;
+        if(answers.get(position) != null) {
+            previousSelectedChoices = answers.get(position).split("\\|");
+            for(int i = 0; i<previousSelectedChoices.length; i++ ) {
+                previousSelectedChoices[i] = previousSelectedChoices[i].trim();
+            }
+        }
+
         String[] choices = currentQuestion.getChoices().split("\\|");
         for (int i=0; i < choices.length ; i++ ) {
             choices[i] = choices[i].trim();
             CheckBox checkBox = new CheckBox(parentContext);
             checkBox.setText(choices[i]);
-            attachCheckboxStateListener(checkBox);
+            if(previousSelectedChoices != null && Arrays.asList(previousSelectedChoices).contains(choices[i])) {
+                checkBox.setChecked(true);
+            }
+            attachCheckboxStateListener(checkBox,holder);
             holder.questionLayout.addView(checkBox);
         }
+
+
     }
 
-    private void attachCheckboxStateListener(final CheckBox checkBox) {
+    private void repopulateChoicesWithData(int adapterPosition) {
+    }
+
+    private void attachCheckboxStateListener(final CheckBox checkBox, final ViewHolder holder) {
+
         checkBox.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                Boolean checked = isChecked;
-                int a = 2;
+                int position = holder.getAdapterPosition();
+
+                if (isChecked) {
+                    if(answers.get(position) == null) {
+                        answers.put(position,checkBox.getText().toString() + " | ");
+                    } else {
+                        answers.put(position, answers.get(position) + checkBox.getText().toString() + " | " );
+                    }
+                } else {
+                    answers.put(position,answers.get(position).replace(checkBox.getText().toString() + " | ", ""));
+                }
+
             }
         });
+
     }
 
     private void renderInstructions(Question currentQuestion, PersonalInformationTestAdapter.ViewHolder holder) {
