@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -181,8 +182,19 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
             choices[i] = choices[i].trim();
             CheckBox checkBox = new CheckBox(parentContext);
             checkBox.setText(choices[i]);
+            attachCheckboxStateListener(checkBox);
             holder.questionLayout.addView(checkBox);
         }
+    }
+
+    private void attachCheckboxStateListener(final CheckBox checkBox) {
+        checkBox.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                Boolean checked = isChecked;
+                int a = 2;
+            }
+        });
     }
 
     private void renderInstructions(Question currentQuestion, PersonalInformationTestAdapter.ViewHolder holder) {

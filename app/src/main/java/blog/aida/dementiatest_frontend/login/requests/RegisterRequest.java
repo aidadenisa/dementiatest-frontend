@@ -14,13 +14,15 @@ import java.util.Map;
 
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
 
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
+
 /**
  * Created by aida on 08-Apr-18.
  */
 
 public class RegisterRequest extends StringRequest {
 
-    private static final String REGISTER_URL = "http://10.11.31.5:8090/register";
+    private static final String REGISTER_URL = REQUEST_URL + "/register";
     private String body;
     private Gson gson;
 

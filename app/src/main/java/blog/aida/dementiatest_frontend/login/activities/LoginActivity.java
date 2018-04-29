@@ -17,10 +17,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +32,9 @@ import blog.aida.dementiatest_frontend.login.requests.LoginRequest;
 import blog.aida.dementiatest_frontend.login.requests.RegisterRequest;
 import blog.aida.dementiatest_frontend.login.validators.DataValidator;
 import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
+import blog.aida.dementiatest_frontend.main.models.Patient;
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
+import blog.aida.dementiatest_frontend.main.services.PatientService;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,6 +45,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private TextInputLayout emailWrapper;
     private TextInputLayout passwordWrapper;
+
+    private PatientService patientService;
+    private RequestQueue queue;
+
+    private Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +63,11 @@ public class LoginActivity extends AppCompatActivity {
 
         emailWrapper = (TextInputLayout) findViewById(R.id.textInputEmail);
         passwordWrapper = (TextInputLayout) findViewById(R.id.textInputPass);
+
+        patientService = new PatientService();
+        queue = Volley.newRequestQueue(LoginActivity.this);
+
+        gson = new Gson();
 
         registerLink.setOnClickListener(new View.OnClickListener() {
 
@@ -91,9 +106,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void loginUser(UserAccount newUser) {
-
-        RequestQueue queue = Volley.newRequestQueue(LoginActivity.this);
+    private void loginUser(final UserAccount newUser) {
 
         Map<String,String> loginData = new HashMap<>();
         loginData.put("email", newUser.getEmail());
@@ -103,17 +116,18 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
 
-                JSONObject responseHeaders;
+                JSONObject responseHeaders, responseBody;
 
                 if(response != null) {
                     try {
                         responseHeaders = response.getJSONObject("headers");
+                        responseBody = response.getJSONObject("data");
 
-                        String token =  (responseHeaders.get("Authorization").toString().split(" "))[1];
+                        String token = (responseHeaders.get("Authorization").toString().split(" "))[1];
 
                         storeToken(token);
 
-                        logUserIntoApp();
+                        logUserIntoApp(responseBody);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -136,10 +150,29 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void logUserIntoApp() {
+    private void logUserIntoApp(JSONObject responseData) {
 
-        Intent internalTestIntent = new Intent(LoginActivity.this, PersonalInformationTestActivity.class);
-        LoginActivity.this.startActivity(internalTestIntent);
+        UserAccount loggedInUser = gson.fromJson(responseData.toString(), UserAccount.class);
+
+        if(loggedInUser.getRole() == 0 ) {
+            //this is a patient
+
+            Patient patient = patientService.getPatientData(queue, loggedInUser, this);
+
+            if(patient == null) {
+
+                patientService.createNewPatient(queue, loggedInUser, this);
+
+                Intent internalTestIntent = new Intent(LoginActivity.this, PersonalInformationTestActivity.class);
+                LoginActivity.this.startActivity(internalTestIntent);
+
+            } else {
+                //TODO: GO TO THE TESTS PAGE
+            }
+
+
+        }
+
 
     }
 

@@ -26,13 +26,15 @@ import java.util.Set;
 
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
 
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
+
 /**
  * Created by aida on 15-Apr-18.
  */
 
 public class LoginRequest extends JsonObjectRequest {
 
-    private static final String LOGIN_URL = "http://10.11.31.5:8090/login";
+    private static final String LOGIN_URL = REQUEST_URL + "/login";
     private String body;
     private Gson gson;
 
@@ -55,17 +57,18 @@ public class LoginRequest extends JsonObjectRequest {
     @Override
     protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
         try {
-//            String jsonString = new String(response.data,
-//                    HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
+            String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
 
             JSONObject jsonResponse = new JSONObject();
-//            jsonResponse.put("data", new JSONArray(jsonString));
+            jsonResponse.put("data", new JSONObject(jsonString));
             jsonResponse.put("headers", new JSONObject(response.headers));
 
             return Response.success(jsonResponse,
                     HttpHeaderParser.parseCacheHeaders(response));
         } catch (JSONException je) {
             return Response.error(new ParseError(je));
+        } catch (UnsupportedEncodingException e) {
+            return Response.error(new ParseError(e));
         }
     }
 
