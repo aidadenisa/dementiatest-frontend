@@ -112,6 +112,39 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
             this.renderDatePicker(currentQuestion, holder);
         }
 
+        if(currentQuestion.getInputConfiguration() != null && currentQuestion.getInputConfiguration()) {
+            this.renderInputText(currentQuestion, holder);
+        }
+
+    }
+
+    private void renderInputText(Question currentQuestion, ViewHolder holder) {
+
+        int position = holder.getAdapterPosition();
+
+        EditText inputText = new EditText(parentContext);
+        attachInputTextBlurListener(inputText, holder);
+
+        if(answers.get(position) != null) {
+            inputText.setText(answers.get(position));
+        }
+
+        holder.questionLayout.addView(inputText);
+
+    }
+
+    private void attachInputTextBlurListener(final EditText inputText, final ViewHolder holder) {
+        inputText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+
+                int position = holder.getAdapterPosition();
+
+                if (!hasFocus) {
+                    answers.put(position, inputText.getText().toString());
+                }
+            }
+        });
     }
 
     private void renderDatePicker(Question currentQuestion, ViewHolder holder) {
@@ -163,24 +196,70 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
 
     private void renderYesOrNoConfiguration(Question currentQuestion, ViewHolder holder) {
 
+        int position = holder.getAdapterPosition();
+        String previousSelectedChoice = null;
+        if(answers.get(position) != null) {
+            previousSelectedChoice = answers.get(position);
+        }
+
         RadioGroup  radioGroup = new RadioGroup(parentContext);
 
         RadioButton yesButton = new RadioButton(parentContext);
         yesButton.setText("YES");
+        attachRadioButtonStateListener(yesButton,holder);
         radioGroup.addView(yesButton);
 
         RadioButton noButton = new RadioButton(parentContext);
         noButton.setText("NO");
+        attachRadioButtonStateListener(noButton,holder);
         radioGroup.addView(noButton);
 
+        RadioButton occasionallyButton = null;
         if(currentQuestion.getOnlyOccasionallyOption() != null && currentQuestion.getOnlyOccasionallyOption()) {
-            RadioButton occasionallyButton = new RadioButton(parentContext);
+            occasionallyButton = new RadioButton(parentContext);
             occasionallyButton.setText("Only Occasionally");
+            attachRadioButtonStateListener(occasionallyButton,holder);
             radioGroup.addView(occasionallyButton);
+        }
+
+        if(previousSelectedChoice != null) {
+            switch(previousSelectedChoice) {
+                case "YES" :
+                    yesButton.setChecked(true);
+                    break;
+
+                case "NO" :
+                    noButton.setChecked(true);
+                    break;
+
+                case "Only Occasionally" :
+                    if(occasionallyButton != null) {
+                        occasionallyButton.setChecked(true);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         holder.questionLayout.addView(radioGroup);
 
+    }
+
+    private void attachRadioButtonStateListener(final RadioButton radioButton, final ViewHolder holder) {
+
+        radioButton.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                int position = holder.getAdapterPosition();
+
+                if (isChecked) {
+                    answers.put(position, radioButton.getText().toString());
+                } else {
+                    answers.remove(position);
+                }
+            }
+        });
     }
 
     private void renderChoices(Question currentQuestion, ViewHolder holder) {
@@ -207,9 +286,6 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
         }
 
 
-    }
-
-    private void repopulateChoicesWithData(int adapterPosition) {
     }
 
     private void attachCheckboxStateListener(final CheckBox checkBox, final ViewHolder holder) {

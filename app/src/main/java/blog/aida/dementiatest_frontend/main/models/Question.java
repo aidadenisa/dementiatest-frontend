@@ -34,6 +34,9 @@ public class Question {
 
     private Boolean dragAndDropConfiguration;
 
+    private Boolean inputConfiguration;
+
+
 //        private List<TestConfiguration> testConfigurations;
 
 
@@ -143,5 +146,13 @@ public class Question {
 
     public void setDragAndDropConfiguration(Boolean dragAndDropConfiguration) {
         this.dragAndDropConfiguration = dragAndDropConfiguration;
+    }
+
+    public Boolean getInputConfiguration() {
+        return inputConfiguration;
+    }
+
+    public void setInputConfiguration(Boolean inputConfiguration) {
+        this.inputConfiguration = inputConfiguration;
     }
 }

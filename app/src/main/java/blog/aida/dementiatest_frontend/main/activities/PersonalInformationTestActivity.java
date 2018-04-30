@@ -27,7 +27,11 @@ import blog.aida.dementiatest_frontend.main.adapters.PersonalInformationTestAdap
 import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.requests.GetRequest;
 
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
+
 public class PersonalInformationTestActivity extends AppCompatActivity {
+
+    private static final int PERSONAL_HISTORY_TEST_ID = 100;
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -57,7 +61,7 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(PersonalInformationTestActivity.this);
 
         GetRequest getQuestions = new GetRequest(
-                "http://10.11.31.5:8090/testconfigs/51/",
+                REQUEST_URL + "/testconfigs/" + PERSONAL_HISTORY_TEST_ID,
                 new Response.Listener<org.json.JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -96,11 +100,6 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
         );
 
         queue.add(getQuestions);
-
-
-
-
-
 
     }
 }
