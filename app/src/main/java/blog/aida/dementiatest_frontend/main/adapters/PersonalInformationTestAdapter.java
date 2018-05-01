@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import blog.aida.dementiatest_frontend.R;
+import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
 import blog.aida.dementiatest_frontend.main.fragments.DatePickerFragment;
 import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.Question;
@@ -43,10 +45,10 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
     private Map<Integer, String> answers;
     private Context parentContext;
     private ViewGroup parent;
-    private Activity activity;
+    private PersonalInformationTestActivity activity;
 //    private Typeface fontAwesome;
 
-    public PersonalInformationTestAdapter(List<Question> questions, Activity activity) {
+    public PersonalInformationTestAdapter(List<Question> questions, PersonalInformationTestActivity activity) {
         this.questions = questions;
         this.activity = activity;
         this.answers = new HashMap<>();
@@ -58,12 +60,14 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
         public View layout;
         public TextView questionText;
         public LinearLayout questionLayout;
+        public Button submitButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
             layout = itemView;
             questionText = (TextView) itemView.findViewById(R.id.question_text);
             questionLayout = (LinearLayout) itemView.findViewById(R.id.question_linear_layout);
+            submitButton = itemView.findViewById(R.id.personal_info_submit_btn);
         }
 
     }
@@ -74,8 +78,18 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
         parentContext = parent.getContext();
         this.parent = parent;
 
+        View view;
         LayoutInflater inflater = LayoutInflater.from(parentContext);
-        View view = inflater.inflate(R.layout.list_item_personal_info_question, parent, false);
+
+        if( viewType == 1 ) {
+
+            view = inflater.inflate(R.layout.submit_btn_personal_test, parent, false);
+
+        } else {
+            view = inflater.inflate(R.layout.list_item_personal_info_question, parent, false);
+
+        }
+
         // set the view's size, margins, paddings and layout parameters
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
@@ -84,18 +98,43 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
     @Override
     public void onBindViewHolder(PersonalInformationTestAdapter.ViewHolder holder, int position) {
 
-        holder.questionLayout.removeAllViews();
+        if(position == questions.size()) {
+            holder.submitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 
-        Question currentQuestion = questions.get(position);
+                    submitAnswers();
+                }
+            });
+        } else {
 
-        holder.questionText.setText(currentQuestion.getText());
+            holder.questionLayout.removeAllViews();
 
-        this.renderQuestion(holder, currentQuestion);
+            Question currentQuestion = questions.get(position);
+
+            holder.questionText.setText(currentQuestion.getText());
+
+            this.renderQuestion(holder, currentQuestion);
+
+        }
+    }
+
+    private void submitAnswers() {
+        activity.submitAnswersToPersonalHistoryTest(answers);
     }
 
     @Override
     public int getItemCount() {
-        return questions.size();
+        return questions.size() + 1;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == questions.size()) {
+            return 1; // button view
+        } else {
+            return 0; // adapter view
+        }
     }
 
 

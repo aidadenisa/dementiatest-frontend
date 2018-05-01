@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -20,12 +22,20 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.login.activities.LoginActivity;
 import blog.aida.dementiatest_frontend.main.adapters.PersonalInformationTestAdapter;
+import blog.aida.dementiatest_frontend.main.models.Answer;
+import blog.aida.dementiatest_frontend.main.models.Patient;
 import blog.aida.dementiatest_frontend.main.models.Question;
+import blog.aida.dementiatest_frontend.main.models.Test;
+import blog.aida.dementiatest_frontend.main.models.TestConfiguration;
 import blog.aida.dementiatest_frontend.main.requests.GetRequest;
+import blog.aida.dementiatest_frontend.main.requests.PostRequest;
+import blog.aida.dementiatest_frontend.main.requests.VolleyCallback;
+import blog.aida.dementiatest_frontend.main.services.PatientService;
 
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
 
@@ -36,6 +46,12 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
+    private List<Question> questions;
+
+    private PatientService patientService;
+    private String patientId;
+
+    private RequestQueue queue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,14 +67,15 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
         // use a linear layout manager
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        final List<Question> questions = new ArrayList<>();
+
 //        for (int i = 0; i < 100; i++) {
 //            Question question = new Question();
 //            question.setText("tEST " + i);
 //            questions.add(question);
 //        }// define an adapter
 
-        RequestQueue queue = Volley.newRequestQueue(PersonalInformationTestActivity.this);
+        queue = Volley.newRequestQueue(PersonalInformationTestActivity.this);
+        questions = new ArrayList<>();
 
         GetRequest getQuestions = new GetRequest(
                 REQUEST_URL + "/testconfigs/" + PERSONAL_HISTORY_TEST_ID,
@@ -98,8 +115,59 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
                 },
                 this
         );
-
         queue.add(getQuestions);
 
+        patientId = getIntent().getStringExtra("PATIENT_ID");
+//        int userId = Integer.parseInt(getIntent().getStringExtra("USER_ID"));
+//
+//        patientService.getPatientData(queue, userId, this, new VolleyCallback() {
+//            @Override
+//            public void onSuccess(Object result) {
+//                patient = new Gson().fromJson(result.toString(), Patient.class);
+//            }
+//        });
+
+
+
+    }
+
+    public void submitAnswersToPersonalHistoryTest(Map<Integer,String> answers) {
+
+        List<Answer> submittedAnswers = new ArrayList<>();
+
+        for(int i = 0; i< questions.size(); i++ )  {
+            if(answers.get(i) != null) {
+                Answer currentAnswer = new Answer();
+
+                currentAnswer.setAnswer(answers.get(i));
+                currentAnswer.setQuestion(questions.get(i));
+
+                submittedAnswers.add(currentAnswer);
+            }
+        }
+
+        PostRequest submitAnswers = new PostRequest(
+                submittedAnswers,
+                REQUEST_URL + "/patient/" + patientId + "/testConfig/" + PERSONAL_HISTORY_TEST_ID + "/answers",
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        int a=2;
+
+                    }
+                },
+                this
+        );
+
+        queue.add(submitAnswers);
     }
 }

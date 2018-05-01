@@ -160,6 +160,8 @@ public class LoginActivity extends AppCompatActivity {
             //TODO: WHAT HAPPENS WHEN THIS IS A DOCTOR
         }
 
+
+
     }
 
     private void createErrorAlertDialog(VolleyError error) {
