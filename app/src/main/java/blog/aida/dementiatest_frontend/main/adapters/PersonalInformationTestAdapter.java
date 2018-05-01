@@ -3,6 +3,7 @@ package blog.aida.dementiatest_frontend.main.adapters;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.main.fragments.DatePickerFragment;
 import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.Question;
+import blog.aida.dementiatest_frontend.main.services.FontManager;
 
 /**
  * Created by aida on 24-Apr-18.
@@ -41,11 +44,13 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
     private Context parentContext;
     private ViewGroup parent;
     private Activity activity;
+//    private Typeface fontAwesome;
 
     public PersonalInformationTestAdapter(List<Question> questions, Activity activity) {
         this.questions = questions;
         this.activity = activity;
         this.answers = new HashMap<>();
+//        this.fontAwesome = FontManager.getTypeface(parentContext,FontManager.FONTAWESOME);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -149,24 +154,41 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
 
     private void renderDatePicker(Question currentQuestion, ViewHolder holder) {
 
+        final int position = holder.getAdapterPosition();
+        String previousAnswer = answers.get(position);
 
-//        final EditText dateInput = new EditText(parentContext);
-//
-//        DatePicker datePicker = new DatePicker(parentContext);
-//
-//            DialogFragment newFragment = new DatePickerFragment();
-//            newFragment.show(activity.getSupportFragmentManager(), "date-picker");
-//
-//        }
-//
 
-        final Button button = new Button(parentContext);
+
+
+        LinearLayout dateLayout = new LinearLayout(parentContext);
+        dateLayout.setOrientation(LinearLayout.HORIZONTAL);
+        dateLayout.setMinimumWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+        dateLayout.setMinimumHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        final TextView calendarPickerIcon = new TextView(parentContext);
+        calendarPickerIcon.setTypeface(FontManager.getTypeface(parentContext,FontManager.FONTAWESOME));
+        calendarPickerIcon.setText(R.string.fa_calendar);
+        calendarPickerIcon.setTextSize(18);
+        LinearLayout.LayoutParams pickerParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                1.0f);
+        calendarPickerIcon.setLayoutParams(pickerParams);
+
         final TextView dateText = new TextView(parentContext);
+        dateText.setLayoutParams(pickerParams);
 
-        holder.questionLayout.addView(dateText);
-        holder.questionLayout.addView(button);
+        if(previousAnswer != null) {
+            Date date = new Date(previousAnswer);
+            dateText.setText(date.getDate() + "/"
+                    + (date.getMonth() + 1) + "/" + date.getYear());
+        }
 
-        button.setOnClickListener(new View.OnClickListener() {
+        dateLayout.addView(dateText);
+        dateLayout.addView(calendarPickerIcon);
+        holder.questionLayout.addView(dateLayout);
+
+        calendarPickerIcon.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -185,6 +207,11 @@ public class PersonalInformationTestAdapter extends RecyclerView.Adapter<Persona
                                 // set day of month , month and year value in the edit text
                                 dateText.setText(dayOfMonth + "/"
                                         + (monthOfYear + 1) + "/" + year);
+
+                                Date chosenDate = new Date(year, monthOfYear, dayOfMonth);
+
+                                answers.put(position,chosenDate.toString());
+
 
                             }
                         }, mYear, mMonth, mDay);
