@@ -22,6 +22,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_OBJECT;
+
 /**
  * Created by aida on 25-Apr-18.
  */
@@ -29,10 +31,12 @@ import java.util.Map;
 public class GetRequest extends JsonObjectRequest {
 
     private Activity activity;
+    private int typeOfResponseExpected;
 
-    public GetRequest(String url, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener, Activity currentActivity) {
+    public GetRequest(String url, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener, Activity currentActivity, int typeOfResponseExpected) {
         super(Method.GET, url, null, listener, errorListener);
         this.activity = currentActivity;
+        this.typeOfResponseExpected = typeOfResponseExpected;
     }
 
     @Override
@@ -44,7 +48,12 @@ public class GetRequest extends JsonObjectRequest {
             JSONObject jsonResponse = new JSONObject();
 
 //            jsonResponse.put("data", new JSONArray(jsonString));
-            jsonResponse.put("data", new JSONObject(jsonString));
+            if(this.typeOfResponseExpected == RESPONSE_TYPE_OBJECT) {
+                jsonResponse.put("data", new JSONObject(jsonString));
+            } else {
+                jsonResponse.put("data", new JSONArray(jsonString));
+            }
+
             jsonResponse.put("headers", new JSONObject(response.headers));
             return Response.success(jsonResponse, null);
 //            return Response.success(jsonResponse, HttpHeaderParser.parseCacheHeaders(response));

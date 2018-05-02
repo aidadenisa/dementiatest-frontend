@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
+import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
 import blog.aida.dementiatest_frontend.main.models.Patient;
 import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
@@ -20,6 +21,7 @@ import blog.aida.dementiatest_frontend.main.requests.PostRequest;
 import blog.aida.dementiatest_frontend.main.requests.VolleyCallback;
 
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_OBJECT;
 
 /**
  * Created by aida on 29-Apr-18.
@@ -47,19 +49,22 @@ public class PatientService {
                             try {
                                 responseBody = response.getJSONObject("data");
 
-                                //TODO: UNCOMMENT THIS AFTER FINISHING WITH THE PERSONAL TEST DEVELOPMENT
-//                                if(responseBody == null) {
+                                if(responseBody == null) {
 
-//                                    createNewPatient(queue, userAccount, currentActivity);
+                                    createNewPatient(queue, userAccount, currentActivity);
 
                                     Intent internalTestIntent = new Intent(currentActivity.getApplicationContext(), PersonalInformationTestActivity.class);
                                     internalTestIntent.putExtra("PATIENT_ID", responseBody.get("id").toString());
 //                                    internalTestIntent.putExtra("USER_ID", userAccount.getId());
                                     currentActivity.startActivity(internalTestIntent);
 
-//                                } else {
-//                                    //TODO: GO TO THE TESTS PAGE
-//                                }
+                                } else {
+//                                    // GO TO THE TESTS PAGE
+
+                                    Intent testsBoardIntent = new Intent(currentActivity, TestsBoardActivity.class);
+                                    currentActivity.startActivity(testsBoardIntent);
+
+                                }
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -73,7 +78,9 @@ public class PatientService {
                     System.out.println("aida request response " + error.getMessage());
                     error.printStackTrace();
                 }
-            }, currentActivity
+            },
+                currentActivity,
+                RESPONSE_TYPE_OBJECT
         );
 
         queue.add(getPatientData);
@@ -129,12 +136,14 @@ public class PatientService {
                     }
                 }, new Response.ErrorListener() {
 
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                System.out.println("aida request response " + error.getMessage());
-                error.printStackTrace();
-            }
-        }, currentActivity
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println("aida request response " + error.getMessage());
+                        error.printStackTrace();
+                    }
+                },
+                currentActivity,
+                RESPONSE_TYPE_OBJECT
         );
 
         queue.add(getPatientDataAfterLogin);

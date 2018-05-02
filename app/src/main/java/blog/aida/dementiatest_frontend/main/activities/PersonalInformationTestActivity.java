@@ -1,5 +1,6 @@
 package blog.aida.dementiatest_frontend.main.activities;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,6 +39,8 @@ import blog.aida.dementiatest_frontend.main.requests.VolleyCallback;
 import blog.aida.dementiatest_frontend.main.services.PatientService;
 
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_ARRAY;
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_OBJECT;
 
 public class PersonalInformationTestActivity extends AppCompatActivity {
 
@@ -63,7 +66,7 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
         // improve performance if you know that changes
         // in content do not change the layout size
         // of the RecyclerView
-//        recyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true);
         // use a linear layout manager
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -113,7 +116,8 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
                         error.printStackTrace();
                     }
                 },
-                this
+                this,
+                RESPONSE_TYPE_OBJECT
         );
         queue.add(getQuestions);
 
@@ -154,7 +158,8 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
 
-
+                        Intent testsBoardIntent = new Intent(PersonalInformationTestActivity.this, TestsBoardActivity.class);
+                        PersonalInformationTestActivity.this.startActivity(testsBoardIntent);
 
                     }
                 },

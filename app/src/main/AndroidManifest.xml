@@ -19,7 +19,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".login.activities.RegisterActivity" />
-        <activity android:name=".main.activities.PersonalInformationTestActivity"></activity>
+        <activity android:name=".main.activities.PersonalInformationTestActivity" />
+        <activity android:name=".main.activities.TestsBoardActivity"></activity>
     </application>
 
 </manifest>
