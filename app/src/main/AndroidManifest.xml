@@ -20,7 +20,8 @@
         </activity>
         <activity android:name=".login.activities.RegisterActivity" />
         <activity android:name=".main.activities.PersonalInformationTestActivity" />
-        <activity android:name=".main.activities.TestsBoardActivity"></activity>
+        <activity android:name=".main.activities.TestsBoardActivity" />
+        <activity android:name=".main.activities.TestActivity"></activity>
     </application>
 
 </manifest>

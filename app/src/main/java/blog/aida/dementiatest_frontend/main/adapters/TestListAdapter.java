@@ -1,6 +1,7 @@
 package blog.aida.dementiatest_frontend.main.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,12 +10,16 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import blog.aida.dementiatest_frontend.R;
+import blog.aida.dementiatest_frontend.login.activities.LoginActivity;
+import blog.aida.dementiatest_frontend.login.activities.RegisterActivity;
 import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
+import blog.aida.dementiatest_frontend.main.activities.TestActivity;
 import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
 import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.models.Test;
@@ -68,16 +73,21 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
     @Override
     public void onBindViewHolder(TestListAdapter.ViewHolder holder, int position) {
 
-        TestConfiguration currentTest = tests.get(position);
+        final TestConfiguration currentTest = tests.get(position);
 
         holder.testName.setText(currentTest.getName());
 
         holder.testCallToAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 //TODO: GO TO TEST VIEW
+
+                Intent registerIntent = new Intent(parentContext, TestActivity.class);
+                registerIntent.putExtra("testConfig", (Serializable) currentTest);
+                parentContext.startActivity(registerIntent);
             }
         });
+
+//        parentContext.getApplication()
     }
 
 

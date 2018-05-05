@@ -1,12 +1,13 @@
 package blog.aida.dementiatest_frontend.main.models;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by aida on 29-Apr-18.
  */
 
-public class TestConfiguration {
+public class TestConfiguration implements Serializable {
 
     private int id;
 

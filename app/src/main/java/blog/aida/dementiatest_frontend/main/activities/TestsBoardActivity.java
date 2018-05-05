@@ -94,4 +94,8 @@ public class TestsBoardActivity extends AppCompatActivity {
 
 
     }
+
+    public TestConfiguration getTestById(int testId) {
+        return tests.get(testId);
+    }
 }
