@@ -1,8 +1,10 @@
 package blog.aida.dementiatest_frontend.main.fragments;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,7 +17,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.List;
+
 import blog.aida.dementiatest_frontend.R;
+import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
+import blog.aida.dementiatest_frontend.main.models.ConnectPoints;
+import blog.aida.dementiatest_frontend.main.views.ConnectPointsView;
 import blog.aida.dementiatest_frontend.main.views.DrawingView;
 import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.views.QuestionViewPager;
@@ -39,10 +46,14 @@ public class QuestionFragment extends Fragment {
 
     private QuestionViewPager viewPager;
 
+    private View view;
+
+    private final static int NO_OF_INPUTS_FOR_MULTIPLE_ANSWERS_QUESTION = 12;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view;
+
         Bundle bundle = getArguments();
         int pageNumber = bundle.getInt("pageNumber");
         question = (Question) bundle.getSerializable("question");
@@ -107,6 +118,13 @@ public class QuestionFragment extends Fragment {
             renderDrawingConfiguration();
         }
 
+        if(question.getMultipleTextConfiguration() != null) {
+            renderMultipleAnswers();
+        }
+
+        if(question.getPoints().size() > 0) {
+            renderConnectPointsExercise();
+        }
 
 //        if(question.getChoices() != null) {
 //            this.renderChoices(currentQuestion, holder);
@@ -121,6 +139,25 @@ public class QuestionFragment extends Fragment {
 //        if(currentQuestion.getInputConfiguration() != null && currentQuestion.getInputConfiguration()) {
 //            this.renderInputText(currentQuestion, holder);
 //        }
+    }
+
+    private void renderConnectPointsExercise() {
+
+        List<ConnectPoints> points = question.getPoints();
+
+        ConnectPointsView canvasView = new ConnectPointsView(context);
+
+        canvasView.setPoints(points);
+
+        questionLayout.addView(canvasView);
+    }
+
+    private void renderMultipleAnswers() {
+
+        for(int i=0; i< NO_OF_INPUTS_FOR_MULTIPLE_ANSWERS_QUESTION; i++) {
+            EditText newInput = new EditText(context);
+            questionLayout.addView(newInput);
+        }
     }
 
     private void renderDrawingConfiguration() {
@@ -240,6 +277,11 @@ public class QuestionFragment extends Fragment {
     }
 
     private void renderInstructions() {
+
+        TextView insctructions = new TextView(context);
+        insctructions.setText(question.getInstructions());
+
+        questionLayout.addView(insctructions);
 
     }
 }

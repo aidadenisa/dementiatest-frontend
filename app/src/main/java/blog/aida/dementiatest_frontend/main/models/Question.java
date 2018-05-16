@@ -1,6 +1,7 @@
 package blog.aida.dementiatest_frontend.main.models;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by aida on 24-Apr-18.
@@ -37,6 +38,8 @@ public class Question implements Serializable{
     private Boolean dragAndDropConfiguration;
 
     private Boolean inputConfiguration;
+
+    private List<ConnectPoints> points;
 
 
 //        private List<TestConfiguration> testConfigurations;
@@ -156,5 +159,13 @@ public class Question implements Serializable{
 
     public void setInputConfiguration(Boolean inputConfiguration) {
         this.inputConfiguration = inputConfiguration;
+    }
+
+    public List<ConnectPoints> getPoints() {
+        return points;
+    }
+
+    public void setPoints(List<ConnectPoints> points) {
+        this.points = points;
     }
 }
