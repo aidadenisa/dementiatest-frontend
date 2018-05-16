@@ -23,6 +23,7 @@ import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
 import blog.aida.dementiatest_frontend.main.models.ConnectPoints;
 import blog.aida.dementiatest_frontend.main.views.ConnectPointsView;
+import blog.aida.dementiatest_frontend.main.views.DragAndDropView;
 import blog.aida.dementiatest_frontend.main.views.DrawingView;
 import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.views.QuestionViewPager;
@@ -126,6 +127,10 @@ public class QuestionFragment extends Fragment {
             renderConnectPointsExercise();
         }
 
+        if(question.getDragAndDropConfiguration() != null && question.getDragAndDropConfiguration()) {
+            renderDragAndDropConfiguration();
+        }
+
 //        if(question.getChoices() != null) {
 //            this.renderChoices(currentQuestion, holder);
 //        }
@@ -139,6 +144,13 @@ public class QuestionFragment extends Fragment {
 //        if(currentQuestion.getInputConfiguration() != null && currentQuestion.getInputConfiguration()) {
 //            this.renderInputText(currentQuestion, holder);
 //        }
+    }
+
+    private void renderDragAndDropConfiguration() {
+
+        DragAndDropView dragAndDropView = new DragAndDropView(context);
+
+        questionLayout.addView(dragAndDropView);
     }
 
     private void renderConnectPointsExercise() {
