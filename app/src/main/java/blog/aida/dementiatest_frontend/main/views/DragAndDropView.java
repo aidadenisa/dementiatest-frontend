@@ -9,6 +9,7 @@ import android.graphics.Path;
 import android.graphics.Point;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,12 @@ public class DragAndDropView extends View {
         Line square2_3 = new Line(new Point(280, 460), new Point(280 + 150, 460));
         Line square2_4 = new Line(new Point(250, 290), new Point(250, 290 + 150));
 
+        Line triangle1_1 = new Line(new Point(250, 210), new Point(330, 80));
+        Line triangle1_2 = new Line(new Point(380, 80), new Point(450, 210));
+
+        Line triangle2_1 = new Line(new Point(500, 250), new Point(620, 330));
+        Line triangle2_2 = new Line(new Point(500, 450), new Point(620, 380));
+
         lines.add(square1_1);
         lines.add(square1_2);
         lines.add(square1_3);
@@ -56,6 +63,10 @@ public class DragAndDropView extends View {
         lines.add(square2_2);
         lines.add(square2_3);
         lines.add(square2_4);
+        lines.add(triangle1_1);
+        lines.add(triangle1_2);
+        lines.add(triangle2_1);
+        lines.add(triangle2_2);
 
         linePaint = new Paint();
         linePaint.setAntiAlias(true);
@@ -95,24 +106,35 @@ public class DragAndDropView extends View {
 
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        int action = event.getAction();
-//        switch (action) {
-//            case MotionEvent.ACTION_DOWN:
-//                initialX = x;
-//                initialY = y;
-//                offsetX = event.getX();
-//                offsetY = event.getY();
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//            case MotionEvent.ACTION_UP:
-//            case MotionEvent.ACTION_CANCEL:
-//                x = initialX + event.getX() - offsetX;
-//                y = initialY + event.getY() - offsetY;
-//                break;
-//        }
-//        return (true);
-//    }
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        for(int i=0; i < lines.size(); i++ ) {
+            if(lines.get(i).pointBelongsToLine(event.getX(),event.getY())) {
+
+//                int action = event.getAction();
+//                switch (action) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        initialX = x;
+//                        initialY = y;
+//                        offsetX = event.getX();
+//                        offsetY = event.getY();
+//                        break;
+//                    case MotionEvent.ACTION_MOVE:
+//                    case MotionEvent.ACTION_UP:
+//                    case MotionEvent.ACTION_CANCEL:
+//                        x = initialX + event.getX() - offsetX;
+//                        y = initialY + event.getY() - offsetY;
+//                        break;
+//                }
+
+                Toast.makeText(getContext(),"Am dat click pe o linie", Toast.LENGTH_SHORT).show();
+
+            }
+        }
+
+
+        return (true);
+    }
 
 }
