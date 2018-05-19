@@ -28,6 +28,14 @@ public class DragAndDropView extends View {
     private Canvas mCanvas;
     private Bitmap mBitmap;
 
+    private float offsetX;
+    private float offsetY;
+    private Point initialPointA;
+    private Point initialPointB;
+    private Line movingLine;
+    private int movingLineIndex;
+
+
     public DragAndDropView(Context context) {
         super(context);
 
@@ -109,32 +117,115 @@ public class DragAndDropView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        for(int i=0; i < lines.size(); i++ ) {
-            if(lines.get(i).pointBelongsToLine(event.getX(),event.getY())) {
+        Point mid = new Point();
+        float d = 0f;
 
-//                int action = event.getAction();
-//                switch (action) {
-//                    case MotionEvent.ACTION_DOWN:
-//                        initialX = x;
-//                        initialY = y;
-//                        offsetX = event.getX();
-//                        offsetY = event.getY();
-//                        break;
-//                    case MotionEvent.ACTION_MOVE:
-//                    case MotionEvent.ACTION_UP:
-//                    case MotionEvent.ACTION_CANCEL:
-//                        x = initialX + event.getX() - offsetX;
-//                        y = initialY + event.getY() - offsetY;
-//                        break;
-//                }
+        Line newRotatedLine = new Line(new Point(), new Point());
 
-                Toast.makeText(getContext(),"Am dat click pe o linie", Toast.LENGTH_SHORT).show();
+        int action = event.getAction();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
 
-            }
+                invalidateOldDragAndDropData();
+
+                for(int i=0; i < lines.size(); i++ ) {
+                    if (lines.get(i).pointBelongsToLine(event.getX(), event.getY())) {
+
+                        Line line = lines.get(i);
+
+                        initialPointA = new Point(line.getA());
+                        initialPointB = new Point(line.getB());
+
+                        movingLine = line;
+                        movingLineIndex = i;
+
+                        offsetX = event.getX();
+                        offsetY = event.getY();
+
+                        break;
+                    }
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+
+//                midPoint(mid, event);
+//                d = rotation(event);
+//                break;
+
+                newRotatedLine = new Line(new Point( (int) event.getX(0), (int) event.getY(0)),
+                        new Point ( ));
+
+            case MotionEvent.ACTION_MOVE:
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+
+                if(movingLine != null && movingLineIndex > -1 && initialPointA != null && initialPointB != null) {
+
+                    if( event.getPointerCount() == 2 ) {
+
+//                        movingLine.setM(newRotatedLine.getM());
+//                        movingLine.setP(newRotatedLine.getP());
+                        float newRot = rotation(event);
+//                        float r = newRot - d;
+//
+//                        double raza = Math.sqrt(Math.pow(movingLine.getB().x - movingLine.getA().x, 2) + Math.pow(movingLine.getB().y -  movingLine.getA().y,2));
+//
+//                        double AnewX = raza * Math.cos((double)newRot);
+//                        double AnewY = raza * Math.sin((double)newRot);
+//
+//                        movingLine.getA().x = (int) mid.x + (int) AnewX;
+//                        movingLine.getA().y = (int) mid.y - (int) AnewY;
+
+
+                    } else {
+
+                        movingLine.getA().x =  (int)(initialPointA.x + event.getX() - offsetX );
+                        movingLine.getB().x =  (int)(initialPointB.x + event.getX() - offsetX );
+
+                        movingLine.getA().y =  (int)(initialPointA.y + event.getY() - offsetY );
+                        movingLine.getB().y =  (int)(initialPointB.y + event.getY() - offsetY );
+
+                        lines.set(movingLineIndex,movingLine);
+
+                        invalidate();
+
+                    }
+
+                }
+                break;
+            default:
+                break;
         }
 
+//                Toast.makeText(getContext(),"Am dat click pe o linie", Toast.LENGTH_SHORT).show();
 
         return (true);
     }
 
+    private void invalidateOldDragAndDropData() {
+        movingLine = null;
+        movingLineIndex = -1;
+        offsetX = 0;
+        offsetY = 0;
+
+        initialPointA = null;
+        initialPointB = null;
+    }
+
+    //calculate the degree of the rotation
+    private float rotation(MotionEvent event) {
+        double delta_x = (event.getX(0) - event.getX(1));
+        double delta_y = (event.getY(0) - event.getY(1));
+        double radians = Math.atan2(delta_y, delta_x);
+        return (float) Math.toDegrees(radians);
+    }
+
+    /**
+     * Calculate the mid point of the first two fingers
+     */
+    private void midPoint(Point point, MotionEvent event) {
+        float x = event.getX(0) + event.getX(1);
+        float y = event.getY(0) + event.getY(1);
+        point.set((int)x / 2, (int)y / 2);
+    }
 }

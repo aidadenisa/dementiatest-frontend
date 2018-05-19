@@ -75,4 +75,20 @@ public class Line {
 
         return false;
     }
+
+    public float getM() {
+        return m;
+    }
+
+    public void setM(float m) {
+        this.m = m;
+    }
+
+    public float getP() {
+        return p;
+    }
+
+    public void setP(float p) {
+        this.p = p;
+    }
 }
