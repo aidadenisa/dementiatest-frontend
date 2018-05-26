@@ -1,10 +1,9 @@
 package blog.aida.dementiatest_frontend.main.fragments;
 
 import android.content.Context;
-import android.graphics.Canvas;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,20 +12,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.util.List;
 
 import blog.aida.dementiatest_frontend.R;
+import blog.aida.dementiatest_frontend.login.activities.LoginActivity;
 import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
+import blog.aida.dementiatest_frontend.main.activities.TestActivity;
+import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
+import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.ConnectPoints;
+import blog.aida.dementiatest_frontend.main.requests.PostRequest;
 import blog.aida.dementiatest_frontend.main.views.ConnectPointsView;
+import blog.aida.dementiatest_frontend.main.views.DateView;
 import blog.aida.dementiatest_frontend.main.views.DragAndDropView;
 import blog.aida.dementiatest_frontend.main.views.DrawingView;
 import blog.aida.dementiatest_frontend.main.models.Question;
+import blog.aida.dementiatest_frontend.main.views.ImageWordView;
+import blog.aida.dementiatest_frontend.main.views.MultipleInputsView;
 import blog.aida.dementiatest_frontend.main.views.QuestionViewPager;
+import blog.aida.dementiatest_frontend.main.views.SingleInputView;
+
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
 
 /**
  * Created by aida on 04-May-18.
@@ -49,7 +66,18 @@ public class QuestionFragment extends Fragment {
 
     private View view;
 
-    private final static int NO_OF_INPUTS_FOR_MULTIPLE_ANSWERS_QUESTION = 12;
+    private DateView dateView;
+
+    private ImageWordView imageWordView;
+    private SingleInputView singleInputView;
+
+    private DrawingView drawingView;
+
+    private ConnectPointsView canvasView;
+
+    private MultipleInputsView multipleInputsView;
+
+    private DragAndDropView dragAndDropView;
 
     @Nullable
     @Override
@@ -57,48 +85,106 @@ public class QuestionFragment extends Fragment {
 
         Bundle bundle = getArguments();
         int pageNumber = bundle.getInt("pageNumber");
-        question = (Question) bundle.getSerializable("question");
+        final boolean isFinalQuestion = bundle.getBoolean("finalQuestion");
+        if(!isFinalQuestion) {
+            question = (Question) bundle.getSerializable("question");
+        } else {
+            question = new Question();
+        }
+
 
         this.container = container;
 
         this.context = getContext();
 
-
-        view = inflater.inflate(R.layout.fragmet_test_question, container, false);
-        TextView textView = view.findViewById(R.id.test_question_text);
-        textView.setText(question.getText());
-
         viewPager = (QuestionViewPager) getActivity().findViewById(R.id.view_pager);
 
+        if( isFinalQuestion ) {
+            view = inflater.inflate(R.layout.submit_btn_dementia_test, container, false);
 
-        btnNextQuestion = view.findViewById(R.id.test_next_btn);
-        btnPreviousQuestion = view.findViewById(R.id.test_back_btn);
+            Button saveButton = view.findViewById(R.id.dementia_test_submit_btn);
 
-        btnNextQuestion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-            }
-        });
+            saveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-        btnPreviousQuestion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
-            }
-        });
+                    List<Answer> answers = ((TestActivity)context).getAnswers();
+                    final int patientId = ((TestActivity)context).getPatientId();
+                    int testConfigurationId = ((TestActivity)context).getTestConfigurationId();
 
+                    RequestQueue queue = Volley.newRequestQueue(context);
 
-        questionLayout = view.findViewById(R.id.test_question_layout);
+                    PostRequest submitAnswers = new PostRequest(
+                            answers,
+                            REQUEST_URL + "/patient/" + patientId + "/testConfig/" + testConfigurationId + "/answers",
+                            null,
+                            new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
 
+                                    Intent testsBoardIntent = new Intent(context, TestsBoardActivity.class);
+                                    testsBoardIntent.putExtra("PATIENT_ID", patientId+ "");
+                                    context.startActivity(testsBoardIntent);
 
-        renderQuestion();
+                                }
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    int a=2;
+
+                                }
+                            },
+                            getActivity()
+                    );
+
+                    queue.add(submitAnswers);
+
+                }
+            });
+        } else {
+            view = inflater.inflate(R.layout.fragmet_test_question, container, false);
+            TextView textView = view.findViewById(R.id.test_question_text);
+            textView.setText(question.getText());
+
+            btnNextQuestion = view.findViewById(R.id.test_next_btn);
+            btnPreviousQuestion = view.findViewById(R.id.test_back_btn);
+
+            btnNextQuestion.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String answer = getAnswer();
+                    if(answer != null && !answer.equals("")) {
+                        ((TestActivity)context).saveAnswerToAnswersList(getAnswer(), question);
+                    }
+                    viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+                }
+            });
+
+            btnPreviousQuestion.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
+                }
+            });
+
+            questionLayout = view.findViewById(R.id.test_question_layout);
+
+            renderQuestion();
+        }
+
+//        if( isFinalQuestion ) {
+////            renderFinalQuestion();
+//        } else {
+//            renderQuestion();
+//
+//        }
 
         return view;
-        //return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     private void renderQuestion() {
+
         if(question.getInstructions() != null) {
             this.renderInstructions();
         }
@@ -107,7 +193,11 @@ public class QuestionFragment extends Fragment {
             this.renderDateQuestion();
         }
 
-        if(question.getImage1() != null) {
+        if(question.getImage1() != null
+                && question.getDrawingConfiguration() == null
+                && question.getDragAndDropConfiguration() == null
+                && question.getNoImmediateAnswer() == null
+                ) {
            renderOneImageExercise();
         }
 
@@ -146,6 +236,64 @@ public class QuestionFragment extends Fragment {
 //        }
     }
 
+    private String getAnswer() {
+
+        if(question.getDateConfiguration() != null && question.getDateConfiguration()) {
+             return getDateAnswer();
+        }
+
+        if(question.getImage1() != null && imageWordView!=null) {
+            return getOneImageWordAnswer();
+        }
+
+        if(question.getInputConfiguration() != null && question.getInputConfiguration() && singleInputView != null) {
+            return getSingleInputAnswer();
+        }
+
+        if(question.getDrawingConfiguration() != null && question.getDrawingConfiguration() && drawingView!=null ) {
+            byte[] drawing = drawingView.getDrawing();
+            String bytes = new Gson().toJson(drawing);
+            return bytes;
+        }
+
+        if(question.getMultipleTextConfiguration() != null && multipleInputsView != null) {
+            return getMultipleAnswers();
+        }
+
+        if(question.getPoints().size() > 0 && canvasView != null) {
+            return getConnectPointsExerciseAnswer();
+        }
+
+        if(question.getDragAndDropConfiguration() != null && question.getDragAndDropConfiguration() && dragAndDropView != null) {
+            byte[] drawing = dragAndDropView.getDrawing();
+            String bytes = new Gson().toJson(drawing);
+            return bytes;
+        }
+        return null;
+    }
+
+    private String getConnectPointsExerciseAnswer() {
+        return canvasView.getOrderOfConnectedPointsToString();
+    }
+
+    private String getMultipleAnswers() {
+        return multipleInputsView.getMultipleInputsAnswer();
+    }
+
+    private String getSingleInputAnswer() {
+        return singleInputView.getInputAnswer();
+    }
+
+    private String getOneImageWordAnswer() {
+
+        return imageWordView.getWordAnswer();
+    }
+
+    private String getDateAnswer() {
+
+        return dateView.getValuesInString();
+    }
+
     private void renderDragAndDropConfiguration() {
 
         DragAndDropView dragAndDropView = new DragAndDropView(context);
@@ -157,7 +305,7 @@ public class QuestionFragment extends Fragment {
 
         List<ConnectPoints> points = question.getPoints();
 
-        ConnectPointsView canvasView = new ConnectPointsView(context);
+        canvasView = new ConnectPointsView(context);
 
         canvasView.setPoints(points);
 
@@ -166,10 +314,7 @@ public class QuestionFragment extends Fragment {
 
     private void renderMultipleAnswers() {
 
-        for(int i=0; i< NO_OF_INPUTS_FOR_MULTIPLE_ANSWERS_QUESTION; i++) {
-            EditText newInput = new EditText(context);
-            questionLayout.addView(newInput);
-        }
+        multipleInputsView = new MultipleInputsView(context,questionLayout);
     }
 
     private void renderDrawingConfiguration() {
@@ -181,21 +326,11 @@ public class QuestionFragment extends Fragment {
         paint.setStrokeCap(Paint.Cap.SQUARE);
         paint.setStrokeWidth(8);
 
-        final DrawingView drawingView = new DrawingView(context,paint);
+        drawingView = new DrawingView(context,paint);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         drawingView.setLayoutParams(layoutParams);
-
-        Button saveButton = new Button(context);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //TODO: SAVE THE DRAWING IN ANSWER
-                byte[] drawing = drawingView.getDrawing();
-            }
-        });
 
         Button clearButton = new Button(context);
         clearButton.setOnClickListener(new View.OnClickListener() {
@@ -205,86 +340,27 @@ public class QuestionFragment extends Fragment {
             }
         });
 
-        questionLayout.addView(saveButton);
         questionLayout.addView(clearButton);
         questionLayout.addView(drawingView);
-
-
 
     }
 
     private void renderInputConfiguration() {
-        EditText input = new EditText(context);
-        questionLayout.addView(input);
+        singleInputView = new SingleInputView(context,questionLayout);
     }
 
     private void renderOneImageExercise() {
-        String imageName = question.getImage1();
-        EditText imageAnswer = new EditText(context);
 
-        ImageView imageView = new ImageView(context);
-        imageView.setImageResource(getImageResourceFromName(imageName));
-
-        questionLayout.addView(imageView);
-        questionLayout.addView(imageAnswer);
-
-
-    }
-
-    private int getImageResourceFromName(String imageName) {
-
-        switch(imageName) {
-            case "wreath":
-                return R.drawable.wreath;
-
-            case "volcano":
-                return R.drawable.volcano;
-
-            default:
-                return -1;
-        }
-
+        imageWordView = new ImageWordView(context,questionLayout,question);
     }
 
     private void renderTwoImagesExercise() {
-
 
     }
 
     private void renderDateQuestion() {
 
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        LinearLayout.LayoutParams fieldParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                1.0f);
-
-        renderDateLayout(layoutParams, fieldParams, "Year");
-        renderDateLayout(layoutParams, fieldParams, "Month");
-        renderDateLayout(layoutParams, fieldParams, "Day");
-
-    }
-
-    private void renderDateLayout(LinearLayout.LayoutParams layoutParams, LinearLayout.LayoutParams fieldParams, String dateLabelText) {
-
-        LinearLayout dateLayout = new LinearLayout(context);
-        dateLayout.setOrientation(LinearLayout.HORIZONTAL);
-        dateLayout.setLayoutParams(layoutParams);
-
-        EditText dateInput = new EditText(context);
-        dateInput.setLayoutParams(fieldParams);
-
-        TextView dateLabel = new TextView(context);
-        dateLabel.setText(dateLabelText);
-        dateLabel.setLayoutParams(fieldParams);
-
-        dateLayout.addView(dateLabel);
-        dateLayout.addView(dateInput);
-
-        questionLayout.addView(dateLayout);
+        dateView = new DateView(context, questionLayout);
 
     }
 

@@ -53,21 +53,20 @@ public class PatientService {
 
                                     createNewPatient(queue, userAccount, currentActivity);
 
-                                    Intent internalTestIntent = new Intent(currentActivity.getApplicationContext(), PersonalInformationTestActivity.class);
-                                    internalTestIntent.putExtra("PATIENT_ID", responseBody.get("id").toString());
-//                                    internalTestIntent.putExtra("USER_ID", userAccount.getId());
-                                    currentActivity.startActivity(internalTestIntent);
-
                                 } else {
 //                                    // GO TO THE TESTS PAGE
 
                                     Intent testsBoardIntent = new Intent(currentActivity, TestsBoardActivity.class);
+                                    testsBoardIntent.putExtra("PATIENT_ID", responseBody.get("id")+ "");
                                     currentActivity.startActivity(testsBoardIntent);
 
                                 }
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
+
+                                createNewPatient(queue, userAccount, currentActivity);
+
                             }
                         }
                     }
@@ -77,6 +76,7 @@ public class PatientService {
                 public void onErrorResponse(VolleyError error) {
                     System.out.println("aida request response " + error.getMessage());
                     error.printStackTrace();
+                    createNewPatient(queue, userAccount, currentActivity);
                 }
             },
                 currentActivity,
@@ -86,7 +86,7 @@ public class PatientService {
         queue.add(getPatientData);
     }
 
-    public void createNewPatient(RequestQueue queue, UserAccount loggedInUser, Activity currentActivity) {
+    public void createNewPatient(final RequestQueue queue, final UserAccount loggedInUser, final Activity currentActivity) {
 
         PostRequest createNewPatientWithAccount = new PostRequest(
                 null,
@@ -96,6 +96,7 @@ public class PatientService {
                     @Override
                     public void onResponse(JSONObject response) {
 
+
                     }
                 }, new Response.ErrorListener() {
 
@@ -103,6 +104,22 @@ public class PatientService {
                     public void onErrorResponse(VolleyError error) {
                         System.out.println("aida request response " + error.getMessage());
                         error.printStackTrace();
+
+                        getPatientData(queue, loggedInUser.getId(), currentActivity, new VolleyCallback() {
+                            @Override
+                            public void onSuccess(Object result) {
+
+
+                                Patient patientData = new Gson().fromJson(new Gson().toJson(result).toString(), Patient.class);
+
+                                Intent internalTestIntent = new Intent(currentActivity.getApplicationContext(), PersonalInformationTestActivity.class);
+                                internalTestIntent.putExtra("PATIENT_ID", patientData.getId()+ "");
+////                                    internalTestIntent.putExtra("USER_ID", userAccount.getId());
+                                currentActivity.startActivity(internalTestIntent);
+
+                            }
+                        });
+
                     }
                 }, currentActivity
         );

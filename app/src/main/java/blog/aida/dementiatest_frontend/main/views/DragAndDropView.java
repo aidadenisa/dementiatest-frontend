@@ -7,10 +7,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.media.ThumbnailUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -227,5 +229,27 @@ public class DragAndDropView extends View {
         float x = event.getX(0) + event.getX(1);
         float y = event.getY(0) + event.getY(1);
         point.set((int)x / 2, (int)y / 2);
+    }
+
+
+    public byte[] getDrawing()
+    {
+        Bitmap whatTheUserDrewBitmap = getDrawingCache();
+        // don't forget to clear it (see above) or you just get duplicates
+
+        // almost always you will want to reduce res from the very high screen res
+        whatTheUserDrewBitmap = ThumbnailUtils.extractThumbnail(whatTheUserDrewBitmap, 256, 256);
+        // NOTE that's an incredibly useful trick for cropping/resizing squares
+        // while handling all memory problems etc
+        // http://stackoverflow.com/a/17733530/294884
+
+        // you can now save the bitmap to a file, or display it in an ImageView:
+
+        // these days you often need a "byte array". for example,
+        // to save to parse.com or other cloud services
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        whatTheUserDrewBitmap.compress(Bitmap.CompressFormat.PNG, 0, baos);
+
+        return baos.toByteArray();
     }
 }

@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import java.util.List;
 
 import blog.aida.dementiatest_frontend.main.fragments.QuestionFragment;
+import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.models.TestConfiguration;
 
@@ -19,6 +20,8 @@ public class TestQuestionsAdapter extends FragmentStatePagerAdapter {
 
     private TestConfiguration testConfiguration;
     private List<Question> questions;
+
+    private List<Answer> answers;
 
     public TestQuestionsAdapter(FragmentManager fragmentManager, TestConfiguration testConfiguration) {
         super(fragmentManager);
@@ -32,7 +35,12 @@ public class TestQuestionsAdapter extends FragmentStatePagerAdapter {
         Fragment questionFragment = new QuestionFragment();
         Bundle bundle = new Bundle();
         bundle.putInt("pageNumber", position+1);
-        bundle.putSerializable("question",questions.get(position));
+        if( getCount() == position + 1 ) {
+            bundle.putBoolean("finalQuestion", true);
+        }
+        if( position < questions.size()) {
+            bundle.putSerializable("question",questions.get(position));
+        }
         questionFragment.setArguments(bundle);
 
         return questionFragment;
@@ -40,6 +48,6 @@ public class TestQuestionsAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return questions.size();
+        return questions.size() + 1;
     }
 }

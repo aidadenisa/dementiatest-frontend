@@ -16,11 +16,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.main.adapters.PersonalInformationTestAdapter;
 import blog.aida.dementiatest_frontend.main.adapters.TestListAdapter;
+import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.models.Test;
 import blog.aida.dementiatest_frontend.main.models.TestConfiguration;
 import blog.aida.dementiatest_frontend.main.requests.GetRequest;
@@ -35,6 +38,7 @@ public class TestsBoardActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private RequestQueue queue;
     private List<TestConfiguration> tests;
+    private String patientId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,8 @@ public class TestsBoardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tests_board);
 
         testListRecyclerView = findViewById(R.id.test_list_recycler_view);
+
+        patientId = getIntent().getStringExtra("PATIENT_ID");
 
         testListRecyclerView.setHasFixedSize(true);
         // use a linear layout manager
@@ -66,10 +72,11 @@ public class TestsBoardActivity extends AppCompatActivity {
                                 for (int i = 0; i < data.length(); i++) {
                                     JSONObject currentTest = data.getJSONObject(i);
                                     TestConfiguration test = new Gson().fromJson(currentTest.toString(), TestConfiguration.class);
+//                                    Collections.sort(test.getQuestions());
                                     tests.add(test);
                                 }
 
-                                adapter = new TestListAdapter(tests, TestsBoardActivity.this);
+                                adapter = new TestListAdapter(tests, TestsBoardActivity.this, patientId);
                                 testListRecyclerView.setAdapter(adapter);
 
 
@@ -83,7 +90,8 @@ public class TestsBoardActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                         int a = 2;
+                         error.printStackTrace();
                     }
                 },
                 this,

@@ -35,10 +35,12 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
     private Context parentContext;
     private ViewGroup parent;
     private TestsBoardActivity activity;
+    private String patientId;
 
-    public TestListAdapter(List<TestConfiguration> tests, TestsBoardActivity activity) {
+    public TestListAdapter(List<TestConfiguration> tests, TestsBoardActivity activity, String patientId) {
         this.tests = tests;
         this.activity = activity;
+        this.patientId = patientId;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -83,6 +85,7 @@ public class TestListAdapter extends RecyclerView.Adapter<TestListAdapter.ViewHo
 
                 Intent registerIntent = new Intent(parentContext, TestActivity.class);
                 registerIntent.putExtra("testConfig", (Serializable) currentTest);
+                registerIntent.putExtra("patientId", patientId);
                 parentContext.startActivity(registerIntent);
             }
         });

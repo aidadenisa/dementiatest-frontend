@@ -1,5 +1,7 @@
 package blog.aida.dementiatest_frontend.main.models;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -38,6 +40,8 @@ public class Question implements Serializable{
     private Boolean dragAndDropConfiguration;
 
     private Boolean inputConfiguration;
+
+    private int index;
 
     private List<ConnectPoints> points;
 
@@ -167,5 +171,13 @@ public class Question implements Serializable{
 
     public void setPoints(List<ConnectPoints> points) {
         this.points = points;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 }

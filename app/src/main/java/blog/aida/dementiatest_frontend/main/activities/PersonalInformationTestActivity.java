@@ -159,6 +159,7 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
 
                         Intent testsBoardIntent = new Intent(PersonalInformationTestActivity.this, TestsBoardActivity.class);
+                        testsBoardIntent.putExtra("PATIENT_ID", patientId+ "");
                         PersonalInformationTestActivity.this.startActivity(testsBoardIntent);
 
                     }

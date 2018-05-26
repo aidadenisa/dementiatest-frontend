@@ -10,6 +10,8 @@ import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -150,6 +152,9 @@ public class ConnectPointsView extends View {
         return true;
     }
 
-
+    public String getOrderOfConnectedPointsToString() {
+        String result = new Gson().toJson(connectedPoints);
+        return result;
+    }
 
 }
