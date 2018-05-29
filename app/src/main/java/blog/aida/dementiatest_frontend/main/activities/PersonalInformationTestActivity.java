@@ -5,8 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -36,6 +39,7 @@ import blog.aida.dementiatest_frontend.main.models.TestConfiguration;
 import blog.aida.dementiatest_frontend.main.requests.GetRequest;
 import blog.aida.dementiatest_frontend.main.requests.PostRequest;
 import blog.aida.dementiatest_frontend.main.requests.VolleyCallback;
+import blog.aida.dementiatest_frontend.main.services.FontManager;
 import blog.aida.dementiatest_frontend.main.services.PatientService;
 
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
@@ -60,6 +64,19 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_information_test);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+
+        if(toolbar.findViewById(R.id.toolbar_title_dementia) != null ) {
+            ((TextView)toolbar.findViewById(R.id.toolbar_title_dementia)).setTypeface(FontManager.getTypeface(this,FontManager.MerriweatherBold));
+        }
+        if(toolbar.findViewById(R.id.toolbar_title_test) != null ) {
+            ((TextView)toolbar.findViewById(R.id.toolbar_title_test)).setTypeface(FontManager.getTypeface(this,FontManager.LatoRegular));
+        }
+        setSupportActionBar(toolbar);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         recyclerView = (RecyclerView) findViewById(R.id.personal_info_questions_recycler_view);
         // use this setting to
@@ -150,30 +167,36 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
             }
         }
 
-        PostRequest submitAnswers = new PostRequest(
-                submittedAnswers,
-                REQUEST_URL + "/patient/" + patientId + "/testConfig/" + PERSONAL_HISTORY_TEST_ID + "/answers",
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
+        if(submittedAnswers.size() > 0 ) {
+            PostRequest submitAnswers = new PostRequest(
+                    submittedAnswers,
+                    REQUEST_URL + "/patient/" + patientId + "/testConfig/" + PERSONAL_HISTORY_TEST_ID + "/answers",
+                    null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Intent testsBoardIntent = new Intent(PersonalInformationTestActivity.this, TestsBoardActivity.class);
+                            testsBoardIntent.putExtra("PATIENT_ID", patientId+ "");
+                            PersonalInformationTestActivity.this.startActivity(testsBoardIntent);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
 
-                        Intent testsBoardIntent = new Intent(PersonalInformationTestActivity.this, TestsBoardActivity.class);
-                        testsBoardIntent.putExtra("PATIENT_ID", patientId+ "");
-                        PersonalInformationTestActivity.this.startActivity(testsBoardIntent);
+                            Toast.makeText(getParent(),"There was an error.Please try again.", Toast.LENGTH_LONG).show();
 
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        int a=2;
+                        }
+                    },
+                    this,
+                    RESPONSE_TYPE_ARRAY
+            );
 
-                    }
-                },
-                this
-        );
+            queue.add(submitAnswers);
 
-        queue.add(submitAnswers);
+        } else {
+            Toast.makeText(this,"Please fill in the details.", Toast.LENGTH_LONG).show();
+        }
+
     }
 }

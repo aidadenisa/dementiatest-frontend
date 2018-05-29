@@ -7,11 +7,14 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -44,6 +47,7 @@ import blog.aida.dementiatest_frontend.main.views.QuestionViewPager;
 import blog.aida.dementiatest_frontend.main.views.SingleInputView;
 
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_ARRAY;
 
 /**
  * Created by aida on 04-May-18.
@@ -85,6 +89,7 @@ public class QuestionFragment extends Fragment {
 
         Bundle bundle = getArguments();
         int pageNumber = bundle.getInt("pageNumber");
+        String testName = bundle.getString("testName");
         final boolean isFinalQuestion = bundle.getBoolean("finalQuestion");
         if(!isFinalQuestion) {
             question = (Question) bundle.getSerializable("question");
@@ -135,7 +140,8 @@ public class QuestionFragment extends Fragment {
 
                                 }
                             },
-                            getActivity()
+                            getActivity(),
+                            RESPONSE_TYPE_ARRAY
                     );
 
                     queue.add(submitAnswers);
@@ -144,6 +150,16 @@ public class QuestionFragment extends Fragment {
             });
         } else {
             view = inflater.inflate(R.layout.fragmet_test_question, container, false);
+
+            Toolbar toolbar = view.findViewById(R.id.toolbar);
+            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+            if(((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+            }
+
+            TextView testTitle = view.findViewById(R.id.test_name_in_question_fragment);
+            testTitle.setText(testName);
+
             TextView textView = view.findViewById(R.id.test_question_text);
             textView.setText(question.getText());
 
@@ -332,7 +348,13 @@ public class QuestionFragment extends Fragment {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         drawingView.setLayoutParams(layoutParams);
 
+        ImageView drawingModel = new ImageView(context);
+        drawingModel.setImageResource(R.drawable.cube);
+        drawingModel.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+
         Button clearButton = new Button(context);
+        clearButton.setText("Start Over");
+        clearButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -340,8 +362,11 @@ public class QuestionFragment extends Fragment {
             }
         });
 
+        questionLayout.addView(drawingModel);
         questionLayout.addView(clearButton);
         questionLayout.addView(drawingView);
+
+
 
     }
 

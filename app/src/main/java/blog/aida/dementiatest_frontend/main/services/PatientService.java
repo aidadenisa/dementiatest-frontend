@@ -7,9 +7,18 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+import java.util.Date;
 
 import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
 import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
@@ -56,10 +65,21 @@ public class PatientService {
                                 } else {
 //                                    // GO TO THE TESTS PAGE
 
-                                    Intent testsBoardIntent = new Intent(currentActivity, TestsBoardActivity.class);
-                                    testsBoardIntent.putExtra("PATIENT_ID", responseBody.get("id")+ "");
-                                    currentActivity.startActivity(testsBoardIntent);
+                                    JSONArray takenTests = (JSONArray) responseBody.get("takenTests");
 
+                                    if(takenTests.length() < 1) {
+
+                                        Intent internalTestIntent = new Intent(currentActivity, PersonalInformationTestActivity.class);
+                                        internalTestIntent.putExtra("PATIENT_ID", responseBody.get("id")+ "");
+                                        currentActivity.startActivity(internalTestIntent);
+
+                                    } else {
+
+                                        Intent testsBoardIntent = new Intent(currentActivity, TestsBoardActivity.class);
+                                        testsBoardIntent.putExtra("PATIENT_ID", responseBody.get("id")+ "");
+                                        currentActivity.startActivity(testsBoardIntent);
+
+                                    }
                                 }
 
                             } catch (JSONException e) {
@@ -86,6 +106,31 @@ public class PatientService {
         queue.add(getPatientData);
     }
 
+    public boolean isPersonalTestEmpty(int patientId, Activity currentActivity, RequestQueue queue) {
+
+        GetRequest getPersonalTestData = new GetRequest(
+                ///patient/{patientId}/testconfig/{testConfigId}
+                REQUEST_URL + "/patientId/" + patientId + "/testConfig/" + 100,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                },
+                currentActivity,
+
+                RESPONSE_TYPE_OBJECT
+        );
+
+        return true;
+    }
+
     public void createNewPatient(final RequestQueue queue, final UserAccount loggedInUser, final Activity currentActivity) {
 
         PostRequest createNewPatientWithAccount = new PostRequest(
@@ -96,19 +141,9 @@ public class PatientService {
                     @Override
                     public void onResponse(JSONObject response) {
 
-
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        System.out.println("aida request response " + error.getMessage());
-                        error.printStackTrace();
-
                         getPatientData(queue, loggedInUser.getId(), currentActivity, new VolleyCallback() {
                             @Override
                             public void onSuccess(Object result) {
-
 
                                 Patient patientData = new Gson().fromJson(new Gson().toJson(result).toString(), Patient.class);
 
@@ -121,7 +156,15 @@ public class PatientService {
                         });
 
                     }
-                }, currentActivity
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println("aida request response " + error.getMessage());
+                        error.printStackTrace();
+                    }
+                }, currentActivity,
+                RESPONSE_TYPE_OBJECT
         );
 
         queue.add(createNewPatientWithAccount);
@@ -142,7 +185,14 @@ public class PatientService {
                             try {
                                 responseBody = response.getJSONObject("data");
 
-                                Patient patient = new Gson().fromJson(responseBody.toString(), Patient.class);
+                                final Gson builder = new GsonBuilder()
+                                        .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                                            public Date deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+                                                return new Date(jsonElement.getAsJsonPrimitive().getAsLong());
+                                            }
+                                        })
+                                        .create();
+                                Patient patient = builder.fromJson(responseBody.toString(), Patient.class);
 
                                 callback.onSuccess(patient);
 

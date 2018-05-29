@@ -35,6 +35,7 @@ public class TestQuestionsAdapter extends FragmentStatePagerAdapter {
         Fragment questionFragment = new QuestionFragment();
         Bundle bundle = new Bundle();
         bundle.putInt("pageNumber", position+1);
+        bundle.putString("testName",testConfiguration.getName());
         if( getCount() == position + 1 ) {
             bundle.putBoolean("finalQuestion", true);
         }

@@ -60,10 +60,13 @@ public class DrawingView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w , h , oldw, oldh);
 
-        this.height = h;
-        this.width = w;
+//        this.height = h;
+//        this.width = w;
+        int height = Resources.getSystem().getDisplayMetrics().heightPixels;
+        int width = Resources.getSystem().getDisplayMetrics().widthPixels;
 
-        bitmap = Bitmap.createBitmap(w , h , Bitmap.Config.ARGB_8888);
+
+        bitmap = Bitmap.createBitmap((int)(width - (20*width/100)) , (int)(height/3 ), Bitmap.Config.ARGB_8888);
         canvas = new Canvas(bitmap);
     }
 
@@ -74,7 +77,7 @@ public class DrawingView extends View {
         int height = Resources.getSystem().getDisplayMetrics().heightPixels;
         int width = Resources.getSystem().getDisplayMetrics().widthPixels;
 
-        canvas.clipRect(0,0,width - (20*width/100),height/2);
+//        canvas.clipRect(0,0,width - (20*width/100),height/3);
         canvas.drawBitmap( bitmap, 0, 0, bitmapPaint);
         canvas.drawPath( path,  paint);
         canvas.drawPath( circlePath,  circlePaint);

@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -27,6 +29,7 @@ import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.models.Test;
 import blog.aida.dementiatest_frontend.main.models.TestConfiguration;
 import blog.aida.dementiatest_frontend.main.requests.GetRequest;
+import blog.aida.dementiatest_frontend.main.services.FontManager;
 
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_ARRAY;
@@ -44,6 +47,19 @@ public class TestsBoardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tests_board);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if(toolbar.findViewById(R.id.toolbar_title_dementia) != null ) {
+            ((TextView)toolbar.findViewById(R.id.toolbar_title_dementia)).setTypeface(FontManager.getTypeface(this,FontManager.MerriweatherBold));
+        }
+        if(toolbar.findViewById(R.id.toolbar_title_test) != null ) {
+            ((TextView)toolbar.findViewById(R.id.toolbar_title_test)).setTypeface(FontManager.getTypeface(this,FontManager.LatoRegular));
+        }
+        setSupportActionBar(toolbar);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+
 
         testListRecyclerView = findViewById(R.id.test_list_recycler_view);
 

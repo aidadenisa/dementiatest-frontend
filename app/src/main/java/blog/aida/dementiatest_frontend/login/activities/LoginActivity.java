@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etEmail;
     private EditText etPass;
     private Button btnLogin;
-    private TextView registerLink;
+    private Button registerLink;
 
     private TextInputLayout emailWrapper;
     private TextInputLayout passwordWrapper;
