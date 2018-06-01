@@ -78,7 +78,7 @@ public class DateView {
             Calendar c = Calendar.getInstance();
             c.set(years, months - 1, days, 0, 0);
 
-            return c.getTime()+"";
+            return c.getTimeInMillis()+"";
 
         } catch (Exception e) {
             e.printStackTrace();

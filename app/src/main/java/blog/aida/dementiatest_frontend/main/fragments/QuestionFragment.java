@@ -9,15 +9,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -29,13 +30,13 @@ import org.json.JSONObject;
 import java.util.List;
 
 import blog.aida.dementiatest_frontend.R;
-import blog.aida.dementiatest_frontend.login.activities.LoginActivity;
-import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
+import blog.aida.dementiatest_frontend.main.interfaces.CanvasBasedView;
 import blog.aida.dementiatest_frontend.main.activities.TestActivity;
 import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
 import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.ConnectPoints;
 import blog.aida.dementiatest_frontend.main.requests.PostRequest;
+import blog.aida.dementiatest_frontend.main.services.TestUtils;
 import blog.aida.dementiatest_frontend.main.views.ConnectPointsView;
 import blog.aida.dementiatest_frontend.main.views.DateView;
 import blog.aida.dementiatest_frontend.main.views.DragAndDropView;
@@ -77,7 +78,7 @@ public class QuestionFragment extends Fragment {
 
     private DrawingView drawingView;
 
-    private ConnectPointsView canvasView;
+    private ConnectPointsView connectPointsView;
 
     private MultipleInputsView multipleInputsView;
 
@@ -144,6 +145,11 @@ public class QuestionFragment extends Fragment {
                             RESPONSE_TYPE_ARRAY
                     );
 
+                    submitAnswers.setRetryPolicy(new DefaultRetryPolicy(
+                            30000,
+                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
                     queue.add(submitAnswers);
 
                 }
@@ -205,6 +211,10 @@ public class QuestionFragment extends Fragment {
             this.renderInstructions();
         }
 
+        if(question.getNoImmediateAnswer() != null && question.getNoImmediateAnswer() && question.getImage1() != null) {
+            this.renderImageInstrucions();
+        }
+
         if(question.getDateConfiguration() != null && question.getDateConfiguration()) {
             this.renderDateQuestion();
         }
@@ -213,6 +223,7 @@ public class QuestionFragment extends Fragment {
                 && question.getDrawingConfiguration() == null
                 && question.getDragAndDropConfiguration() == null
                 && question.getNoImmediateAnswer() == null
+                && question.getPoints().size() < 1
                 ) {
            renderOneImageExercise();
         }
@@ -252,6 +263,13 @@ public class QuestionFragment extends Fragment {
 //        }
     }
 
+    private void renderImageInstrucions() {
+        ImageView imageInstructions = new ImageView(context);
+        imageInstructions.setImageResource(TestUtils.getImageResource(question.getImage1()));
+        imageInstructions.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        questionLayout.addView(imageInstructions);
+    }
+
     private String getAnswer() {
 
         if(question.getDateConfiguration() != null && question.getDateConfiguration()) {
@@ -268,15 +286,15 @@ public class QuestionFragment extends Fragment {
 
         if(question.getDrawingConfiguration() != null && question.getDrawingConfiguration() && drawingView!=null ) {
             byte[] drawing = drawingView.getDrawing();
-            String bytes = new Gson().toJson(drawing);
-            return bytes;
+            String encodedDrawing = Base64.encodeToString(drawing, Base64.NO_WRAP);
+            return encodedDrawing;
         }
 
         if(question.getMultipleTextConfiguration() != null && multipleInputsView != null) {
             return getMultipleAnswers();
         }
 
-        if(question.getPoints().size() > 0 && canvasView != null) {
+        if(question.getPoints().size() > 0 && connectPointsView != null) {
             return getConnectPointsExerciseAnswer();
         }
 
@@ -289,7 +307,7 @@ public class QuestionFragment extends Fragment {
     }
 
     private String getConnectPointsExerciseAnswer() {
-        return canvasView.getOrderOfConnectedPointsToString();
+        return connectPointsView.getOrderOfConnectedPointsToString();
     }
 
     private String getMultipleAnswers() {
@@ -312,7 +330,9 @@ public class QuestionFragment extends Fragment {
 
     private void renderDragAndDropConfiguration() {
 
-        DragAndDropView dragAndDropView = new DragAndDropView(context);
+        final DragAndDropView dragAndDropView = new DragAndDropView(context);
+
+        addResetButton(dragAndDropView);
 
         questionLayout.addView(dragAndDropView);
     }
@@ -321,11 +341,13 @@ public class QuestionFragment extends Fragment {
 
         List<ConnectPoints> points = question.getPoints();
 
-        canvasView = new ConnectPointsView(context);
+        connectPointsView = new ConnectPointsView(context);
 
-        canvasView.setPoints(points);
+        connectPointsView.setPoints(points);
 
-        questionLayout.addView(canvasView);
+        addResetButton(connectPointsView);
+
+        questionLayout.addView(connectPointsView);
     }
 
     private void renderMultipleAnswers() {
@@ -348,25 +370,16 @@ public class QuestionFragment extends Fragment {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         drawingView.setLayoutParams(layoutParams);
 
-        ImageView drawingModel = new ImageView(context);
-        drawingModel.setImageResource(R.drawable.cube);
-        drawingModel.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        if(question.getImage1() != null && question.getImage1().equals("cube")){
+            ImageView drawingModel = new ImageView(context);
+            drawingModel.setImageResource(R.drawable.cube);
+            drawingModel.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            questionLayout.addView(drawingModel);
+        }
 
-        Button clearButton = new Button(context);
-        clearButton.setText("Start Over");
-        clearButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-        clearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawingView.clearDrawing();
-            }
-        });
+        addResetButton(drawingView);
 
-        questionLayout.addView(drawingModel);
-        questionLayout.addView(clearButton);
         questionLayout.addView(drawingView);
-
-
 
     }
 
@@ -379,10 +392,6 @@ public class QuestionFragment extends Fragment {
         imageWordView = new ImageWordView(context,questionLayout,question);
     }
 
-    private void renderTwoImagesExercise() {
-
-    }
-
     private void renderDateQuestion() {
 
         dateView = new DateView(context, questionLayout);
@@ -391,10 +400,26 @@ public class QuestionFragment extends Fragment {
 
     private void renderInstructions() {
 
-        TextView insctructions = new TextView(context);
-        insctructions.setText(question.getInstructions());
+        TextView instructions = new TextView(context);
+        instructions.setText(question.getInstructions());
 
-        questionLayout.addView(insctructions);
+        questionLayout.addView(instructions);
+
+    }
+
+    private void addResetButton(final CanvasBasedView view) {
+
+        Button clearButton = new Button(context);
+        clearButton.setText("Start Over");
+        clearButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.startOver();
+            }
+        });
+
+        questionLayout.addView(clearButton);
 
     }
 }

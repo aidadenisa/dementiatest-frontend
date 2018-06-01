@@ -13,25 +13,18 @@ public class Line {
     private float p;
     private float m;
 
-    private static int HEIGHT = 150;
+    private static int SENSIBILITY = 50;
 
     public Line (Point a, Point b) {
         this.a = a;
         this.b = b;
 
-        if(a.x == b.x) {
-            m = -1; //undefined
-        } else {
-            if(a.y == b.y) {
-                m = 0;
-            } else {
-                m =  ( (float) (b.y - a.y)  / (float) (b.x - a.x)) ;
-            }
-        }
+        calculateLineFunctionParameters();
+    }
 
-
-
-        p = a.y - m * a.x;
+    public void calculateLineFunctionParameters() {
+        calculateSlope();
+        calculateP();
     }
 
     public Point getA() {
@@ -52,10 +45,19 @@ public class Line {
 
     public boolean pointBelongsToLine(float x, float y) {
 
+        if(m == -1) {
+            if(x > a.x - SENSIBILITY
+                    && x < a.x + SENSIBILITY
+                    && y > Math.min(a.y,b.y) - SENSIBILITY
+                    && y < Math.max(a.y,b.y) + SENSIBILITY) {
+                return true;
+            }
+        }
+
         if(m > -1) {
             if(
-                ( y < m * x + p + 15 )
-                && ( y > m * x + p - 15 )
+                ( y < m * x + p + SENSIBILITY )
+                && ( y > m * x + p - SENSIBILITY )
                 && x > Math.min(a.x,b.x)
                 && x < Math.max(a.x,b.x)
             ) {
@@ -63,8 +65,8 @@ public class Line {
             }
         } else {
             if(
-                (x < a.x + 15)
-                && (x > a.x - 15)
+                (x < a.x + SENSIBILITY)
+                && (x > a.x - SENSIBILITY)
                 && y > Math.min(a.y,b.y)
                 && y < Math.max(a.y,b.y)
             ) {
@@ -90,5 +92,21 @@ public class Line {
 
     public void setP(float p) {
         this.p = p;
+    }
+
+    private void calculateSlope() {
+        if(a.x == b.x) {
+            m = -1; //undefined
+        } else {
+            if(a.y == b.y) {
+                m = 0;
+            } else {
+                m =  ( (float) (b.y - a.y)  / (float) (b.x - a.x)) ;
+            }
+        }
+    }
+
+    private void calculateP() {
+        p = a.y - m * a.x;
     }
 }

@@ -14,12 +14,15 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+
+import blog.aida.dementiatest_frontend.main.interfaces.CanvasBasedView;
 
 /**
  * Created by aida on 05-May-18.
  */
 
-public class DrawingView extends View {
+public class DrawingView extends View implements CanvasBasedView{
 
     public int width;
     public  int height;
@@ -142,18 +145,6 @@ public class DrawingView extends View {
         return true;
     }
 
-    public void clearDrawing()
-    {
-        setDrawingCacheEnabled(false);
-        // don't forget that one and the match below,
-        // or you just keep getting a duplicate when you save.
-
-        onSizeChanged(width, height, width, height);
-        invalidate();
-
-        setDrawingCacheEnabled(true);
-    }
-
     public byte[] getDrawing()
     {
         Bitmap whatTheUserDrewBitmap = getDrawingCache();
@@ -161,6 +152,8 @@ public class DrawingView extends View {
 
         // almost always you will want to reduce res from the very high screen res
         whatTheUserDrewBitmap = ThumbnailUtils.extractThumbnail(whatTheUserDrewBitmap, 256, 256);
+
+//        test(whatTheUserDrewBitmap);
         // NOTE that's an incredibly useful trick for cropping/resizing squares
         // while handling all memory problems etc
         // http://stackoverflow.com/a/17733530/294884
@@ -170,8 +163,23 @@ public class DrawingView extends View {
         // these days you often need a "byte array". for example,
         // to save to parse.com or other cloud services
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        whatTheUserDrewBitmap.compress(Bitmap.CompressFormat.PNG, 0, baos);
+        whatTheUserDrewBitmap.compress(Bitmap.CompressFormat.PNG, 1, baos);
 
         return baos.toByteArray();
     }
+
+    @Override
+    public void startOver() {
+
+        setDrawingCacheEnabled(false);
+        // don't forget that one and the match below,
+        // or you just keep getting a duplicate when you save.
+
+        onSizeChanged(width, height, width, height);
+        invalidate();
+
+        setDrawingCacheEnabled(true);
+
+    }
 }
+
