@@ -7,7 +7,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.media.ThumbnailUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -16,17 +18,22 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import blog.aida.dementiatest_frontend.R;
+import blog.aida.dementiatest_frontend.main.interfaces.CanvasBasedView;
 import blog.aida.dementiatest_frontend.main.models.ConnectPoints;
 import blog.aida.dementiatest_frontend.main.models.Line;
+
+import static android.graphics.Color.RED;
 
 /**
  * Created by aida on 16-May-18.
  */
 
-public class DragAndDropView extends View {
+public class DragAndDropView extends View implements CanvasBasedView{
 
     private List<Line> lines;
     private Paint linePaint;
+    private Paint movedLinesPaint;
     private Canvas mCanvas;
     private Bitmap mBitmap;
 
@@ -36,15 +43,64 @@ public class DragAndDropView extends View {
     private Point initialPointB;
     private Line movingLine;
     private int movingLineIndex;
+    private Point movingLineMiddle;
+    private double movingLineRay;
+
+    private List<Line> movedLines;
+
+    private static boolean ROTATE_EVENT = false;
 
 
     public DragAndDropView(Context context) {
         super(context);
 
         lines = new ArrayList<>();
+        movedLines = new ArrayList<>();
         mCanvas = new Canvas();
 
         populateLinesList();
+
+        adaptCanvasSizesToDifferentDisplayDensities();
+    }
+
+    private void adaptCanvasSizesToDifferentDisplayDensities() {
+        for( int i=0; i<lines.size(); i++ ) {
+
+            if (getResources().getDisplayMetrics().density == 1) {
+                lines.get(i).getA().x = lines.get(i).getA().x / 4 * 3;
+                lines.get(i).getA().y = lines.get(i).getA().y / 4 * 3;
+                lines.get(i).getB().x = lines.get(i).getB().x / 4 * 3;
+                lines.get(i).getB().y = lines.get(i).getB().y / 4 * 3;
+
+            }
+
+            if (getResources().getDisplayMetrics().density < 1) {
+                lines.get(i).getA().x = lines.get(i).getA().x / 2;
+                lines.get(i).getA().y = lines.get(i).getA().y / 2;
+                lines.get(i).getB().x = lines.get(i).getB().x / 2;
+                lines.get(i).getB().y = lines.get(i).getB().y / 2;
+
+            }
+
+            if(getResources().getDisplayMetrics().density > 1) {
+                lines.get(i).getA().x = lines.get(i).getA().x * 2;
+                lines.get(i).getA().y = lines.get(i).getA().y * 2;
+                lines.get(i).getB().x = lines.get(i).getB().x * 2;
+                lines.get(i).getB().y = lines.get(i).getB().y * 2;
+
+            }
+
+            lines.get(i).calculateLineFunctionParameters();
+        }
+
+        if (getResources().getDisplayMetrics().density == 1) {
+            linePaint.setStrokeWidth(4f);
+        }
+
+        if (getResources().getDisplayMetrics().density < 1) {
+            linePaint.setStrokeWidth(2f);
+        }
+
     }
 
     private void populateLinesList() {
@@ -83,7 +139,10 @@ public class DragAndDropView extends View {
         linePaint.setColor(Color.DKGRAY);
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setStrokeJoin(Paint.Join.MITER);
-        linePaint.setStrokeWidth(4f);
+        linePaint.setStrokeWidth(8f);
+
+        movedLinesPaint = new Paint(linePaint);
+        movedLinesPaint.setColor(getResources().getColor(R.color.colorAccent));
 
         mCanvas = new Canvas();
 
@@ -111,18 +170,17 @@ public class DragAndDropView extends View {
         for(int i = 0; i< lines.size(); i++ ) {
 
             Line line = lines.get(i);
-            canvas.drawLine(line.getA().x, line.getA().y, line.getB().x, line.getB().y, linePaint);
+            if(movedLines.indexOf(line) > -1 ) {
+                canvas.drawLine(line.getA().x, line.getA().y, line.getB().x, line.getB().y, movedLinesPaint);
+            } else {
+                canvas.drawLine(line.getA().x, line.getA().y, line.getB().x, line.getB().y, linePaint);
+            }
         }
 
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
-        Point mid = new Point();
-        float d = 0f;
-
-        Line newRotatedLine = new Line(new Point(), new Point());
 
         int action = event.getAction();
         switch (action) {
@@ -135,6 +193,19 @@ public class DragAndDropView extends View {
 
                         Line line = lines.get(i);
 
+                        if(movedLines.indexOf(line) == -1 ) {
+                            if(movedLines.size() <= 3) {
+                                movedLines.add(line);
+                            } else {
+                                Toast.makeText(
+                                        getContext(),
+                                        "You are allowed to move only 4 lines! Please move the colored ones",
+                                        Toast.LENGTH_LONG
+                                ).show();
+                                return true;
+                            }
+                        }
+
                         initialPointA = new Point(line.getA());
                         initialPointB = new Point(line.getB());
 
@@ -144,57 +215,95 @@ public class DragAndDropView extends View {
                         offsetX = event.getX();
                         offsetY = event.getY();
 
+                        movingLineMiddle = getMiddlePointOfLine(movingLine);
+                        movingLineRay = Math.sqrt(
+                                Math.pow(movingLine.getA().x - movingLineMiddle.x,2)
+                                        + Math.pow(movingLine.getA().y - movingLineMiddle.y,2)
+                        );
+
                         break;
                     }
                 }
                 break;
-            case MotionEvent.ACTION_POINTER_DOWN:
-
-//                midPoint(mid, event);
-//                d = rotation(event);
-//                break;
-
-                newRotatedLine = new Line(new Point( (int) event.getX(0), (int) event.getY(0)),
-                        new Point ( ));
 
             case MotionEvent.ACTION_MOVE:
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
 
                 if(movingLine != null && movingLineIndex > -1 && initialPointA != null && initialPointB != null) {
 
                     if( event.getPointerCount() == 2 ) {
 
-//                        movingLine.setM(newRotatedLine.getM());
-//                        movingLine.setP(newRotatedLine.getP());
-                        float newRot = rotation(event);
-//                        float r = newRot - d;
-//
-//                        double raza = Math.sqrt(Math.pow(movingLine.getB().x - movingLine.getA().x, 2) + Math.pow(movingLine.getB().y -  movingLine.getA().y,2));
-//
-//                        double AnewX = raza * Math.cos((double)newRot);
-//                        double AnewY = raza * Math.sin((double)newRot);
-//
-//                        movingLine.getA().x = (int) mid.x + (int) AnewX;
-//                        movingLine.getA().y = (int) mid.y - (int) AnewY;
+                        ROTATE_EVENT = true;
 
+                        double rotationAngle = rotation(event);
 
-                    } else {
+                        if(movingLine.getA().x < movingLine.getB().x) {
+                            Point aux = new Point(movingLine.getA());
+                            movingLine.setA(new Point(movingLine.getB()));
+                            movingLine.setB(aux);
+                        }
 
-                        movingLine.getA().x =  (int)(initialPointA.x + event.getX() - offsetX );
-                        movingLine.getB().x =  (int)(initialPointB.x + event.getX() - offsetX );
+                        double delta_x = Math.abs(movingLineRay * Math.cos(rotationAngle));
+                        double delta_y = Math.abs(movingLineRay * Math.sin(rotationAngle));
 
-                        movingLine.getA().y =  (int)(initialPointA.y + event.getY() - offsetY );
-                        movingLine.getB().y =  (int)(initialPointB.y + event.getY() - offsetY );
+                        if(rotationAngle > 1.4) {
+                            delta_x = 0;
+                        }
+
+                        if(rotationAngle < 0.15) {
+                            delta_y = 0;
+                        }
+
+                        movingLine.getA().x = (int) (movingLineMiddle.x + delta_x);
+                        movingLine.getA().y = (int) (movingLineMiddle.y + delta_y);
+
+                        movingLine.getB().x = (int) (movingLineMiddle.x - delta_x);
+                        movingLine.getB().y = (int) (movingLineMiddle.y - delta_y);
+
+                        movingLine.calculateLineFunctionParameters();
 
                         lines.set(movingLineIndex,movingLine);
 
                         invalidate();
 
+                    } else {
+
+                        if( !ROTATE_EVENT ) {
+                            movingLine.getA().x =  (int)(initialPointA.x + event.getX() - offsetX );
+                            movingLine.getB().x =  (int)(initialPointB.x + event.getX() - offsetX );
+
+                            movingLine.getA().y =  (int)(initialPointA.y + event.getY() - offsetY );
+                            movingLine.getB().y =  (int)(initialPointB.y + event.getY() - offsetY );
+
+                            movingLine.calculateLineFunctionParameters();
+
+                            lines.set(movingLineIndex,movingLine);
+
+                            invalidate();
+                        }
+
                     }
 
                 }
                 break;
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+
+                if(ROTATE_EVENT) {
+                    ROTATE_EVENT = false;
+                }
+
+                if(movingLine != null ) {
+
+                    movingLine.calculateLineFunctionParameters();
+
+                    lines.set(movingLineIndex,movingLine);
+
+                }
+
+                invalidate();
+                break;
+
             default:
                 break;
         }
@@ -202,6 +311,13 @@ public class DragAndDropView extends View {
 //                Toast.makeText(getContext(),"Am dat click pe o linie", Toast.LENGTH_SHORT).show();
 
         return (true);
+    }
+
+    private Point getMiddlePointOfLine(Line movingLine) {
+
+        int middleX = (int) (movingLine.getA().x + movingLine.getB().x) / 2;
+        int middleY = (int) (movingLine.getA().y + movingLine.getB().y) / 2;
+        return new Point(middleX, middleY);
     }
 
     private void invalidateOldDragAndDropData() {
@@ -212,25 +328,19 @@ public class DragAndDropView extends View {
 
         initialPointA = null;
         initialPointB = null;
+
+        movingLineMiddle = new Point();
+        movingLineRay = 0;
+        ROTATE_EVENT = false;
+
     }
 
     //calculate the degree of the rotation
-    private float rotation(MotionEvent event) {
-        double delta_x = (event.getX(0) - event.getX(1));
-        double delta_y = (event.getY(0) - event.getY(1));
-        double radians = Math.atan2(delta_y, delta_x);
-        return (float) Math.toDegrees(radians);
+    private double rotation(MotionEvent event) {
+        double delta_x = Math.abs(event.getX(0) - event.getX(1));
+        double delta_y = Math.abs(event.getY(0) - event.getY(1));
+        return Math.atan2(delta_y, delta_x);
     }
-
-    /**
-     * Calculate the mid point of the first two fingers
-     */
-    private void midPoint(Point point, MotionEvent event) {
-        float x = event.getX(0) + event.getX(1);
-        float y = event.getY(0) + event.getY(1);
-        point.set((int)x / 2, (int)y / 2);
-    }
-
 
     public byte[] getDrawing()
     {
@@ -251,5 +361,18 @@ public class DragAndDropView extends View {
         whatTheUserDrewBitmap.compress(Bitmap.CompressFormat.PNG, 0, baos);
 
         return baos.toByteArray();
+    }
+
+    @Override
+    public void startOver() {
+        lines.clear();
+        movedLines.clear();
+
+        populateLinesList();
+
+        adaptCanvasSizesToDifferentDisplayDensities();
+
+        mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.MULTIPLY);
+        invalidate();
     }
 }
