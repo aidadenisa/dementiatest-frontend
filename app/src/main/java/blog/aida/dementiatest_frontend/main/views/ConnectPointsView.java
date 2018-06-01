@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,13 +17,14 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import blog.aida.dementiatest_frontend.main.interfaces.CanvasBasedView;
 import blog.aida.dementiatest_frontend.main.models.ConnectPoints;
 
 /**
  * Created by aida on 07-May-18.
  */
 
-public class ConnectPointsView extends View {
+public class ConnectPointsView extends View implements CanvasBasedView {
 
 
     private Bitmap mBitmap;
@@ -37,6 +40,8 @@ public class ConnectPointsView extends View {
     private List<ConnectPoints> points;
 
     private List<ConnectPoints> connectedPoints;
+
+    private static int POINTS_RADIUS = 30;
 
     public ConnectPointsView(Context context) {
         super(context);
@@ -97,15 +102,67 @@ public class ConnectPointsView extends View {
 
             ConnectPoints point = points.get(i);
             if(!connectedPoints.contains(point)) {
-                canvas.drawCircle(point.getX(), point.getY(), 30, circlePaint);
-                canvas.drawText(point.getCode(), point.getX(), point.getY()+10, paint);
+                canvas.drawCircle(point.getX(), point.getY(), POINTS_RADIUS, circlePaint);
+                canvas.drawText(point.getCode(), point.getX(), point.getY() + (POINTS_RADIUS/3), paint);
             }
         }
 
     }
 
     public void setPoints(List<ConnectPoints> points) {
-        this.points = points;
+
+        this.points = new ArrayList<>(points.size());
+        for(int i = 0; i< points.size(); i++) {
+            try {
+                this.points.add((ConnectPoints)points.get(i).clone());
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        adaptCanvasSizesToDifferentDisplayDensities();
+    }
+
+    private void adaptCanvasSizesToDifferentDisplayDensities() {
+
+        for(int i = 0; i< points.size(); i++ ) {
+
+            ConnectPoints point = points.get(i);
+
+            if (getResources().getDisplayMetrics().density == 1) {
+
+                point.setX((int)point.getX()/2);
+                point.setY((int)point.getY()/2);
+
+            }
+
+            if (getResources().getDisplayMetrics().density < 1) {
+
+                point.setX((int)point.getX()/4);
+                point.setY((int)point.getY()/4);
+
+            }
+
+        }
+
+        if (getResources().getDisplayMetrics().density == 1) {
+            POINTS_RADIUS = 14;
+            paint.setStrokeWidth(4);
+            paint.setTextSize(18);
+            pointSelectedTextPaint.setTextSize(18);
+            circlePaint.setStrokeWidth(2f);
+        }
+
+        if (getResources().getDisplayMetrics().density < 1) {
+
+            POINTS_RADIUS = 8;
+            paint.setStrokeWidth(2);
+            paint.setTextSize(8);
+            pointSelectedTextPaint.setTextSize(8);
+            circlePaint.setStrokeWidth(1f);
+
+        }
+
     }
 
 //    public void drawCircle(ConnectPoints point) {
@@ -118,15 +175,20 @@ public class ConnectPointsView extends View {
 
         if(points != null  ) {
             for(int i=0; i< points.size(); i++ ){
-                if(points.get(i).getX() + 30 > event.getX()
-                        && points.get(i).getX() - 30 < event.getX()
-                        && points.get(i).getY() + 30 > event.getY()
-                        && points.get(i).getY() - 30 < event.getY()) {
+                if(points.get(i).getX() + POINTS_RADIUS > event.getX()
+                        && points.get(i).getX() - POINTS_RADIUS < event.getX()
+                        && points.get(i).getY() + POINTS_RADIUS > event.getY()
+                        && points.get(i).getY() - POINTS_RADIUS < event.getY()) {
 
                     if(!connectedPoints.contains(points.get(i))) {
                         connectedPoints.add(points.get(i));
-                        mCanvas.drawCircle(points.get(i).getX(), points.get(i).getY(), 30, pointSelectedPaint);
-                        mCanvas.drawText(points.get(i).getCode(), points.get(i).getX(), points.get(i).getY()+10, pointSelectedTextPaint);
+                        mCanvas.drawCircle(points.get(i).getX(), points.get(i).getY(), POINTS_RADIUS, pointSelectedPaint);
+                        mCanvas.drawText(
+                                points.get(i).getCode(),
+                                points.get(i).getX(),
+                                points.get(i).getY() + (POINTS_RADIUS/3),
+                                pointSelectedTextPaint
+                        );
 
                     }
 
@@ -144,9 +206,21 @@ public class ConnectPointsView extends View {
                         connectedPoints.get(j+1).getY(),
                         paint
                 );
-                mCanvas.drawText(connectedPoints.get(j).getCode(), connectedPoints.get(j).getX(), connectedPoints.get(j).getY()+10, pointSelectedTextPaint);
+
+                mCanvas.drawText(
+                        connectedPoints.get(j).getCode(),
+                        connectedPoints.get(j).getX(),
+                        connectedPoints.get(j).getY() + (POINTS_RADIUS/3),
+                        pointSelectedTextPaint
+                );
             }
-            mCanvas.drawText(connectedPoints.get(connectedPoints.size() - 1).getCode(), connectedPoints.get(connectedPoints.size() - 1).getX(), connectedPoints.get(connectedPoints.size() - 1).getY()+10, pointSelectedTextPaint);
+
+            mCanvas.drawText(
+                    connectedPoints.get(connectedPoints.size() - 1).getCode(),
+                    connectedPoints.get(connectedPoints.size() - 1).getX(),
+                    connectedPoints.get(connectedPoints.size() - 1).getY() + (POINTS_RADIUS/3),
+                    pointSelectedTextPaint
+            );
         }
         this.invalidate();
         return true;
@@ -157,4 +231,11 @@ public class ConnectPointsView extends View {
         return result;
     }
 
+    @Override
+    public void startOver() {
+        connectedPoints.clear();
+
+        mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.MULTIPLY);
+        invalidate();
+    }
 }

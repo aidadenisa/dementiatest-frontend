@@ -1,20 +1,18 @@
 package blog.aida.dementiatest_frontend.main.models;
 
-import android.graphics.Point;
-
 import java.io.Serializable;
 
 /**
  * Created by aida on 06-May-18.
  */
 
-public class ConnectPoints implements Serializable {
+public class ConnectPoints implements Serializable, Cloneable {
 
     private int id;
 
     private String code;
 
-    private int Index;
+    private int index;
 
     private int x;
 
@@ -37,11 +35,11 @@ public class ConnectPoints implements Serializable {
     }
 
     public int getIndex() {
-        return Index;
+        return index;
     }
 
     public void setIndex(int index) {
-        Index = index;
+        this.index = index;
     }
 
     public int getX() {
@@ -58,5 +56,18 @@ public class ConnectPoints implements Serializable {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        super.clone();
+        ConnectPoints point = new ConnectPoints();
+        point.setX(this.x);
+        point.setY(this.y);
+        point.setCode(this.code);
+        point.setIndex(this.index);
+        point.setId(this.id);
+
+        return point;
     }
 }
