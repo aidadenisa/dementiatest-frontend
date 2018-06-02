@@ -5,11 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.media.ThumbnailUtils;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -20,10 +18,7 @@ import java.util.List;
 
 import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.main.interfaces.CanvasBasedView;
-import blog.aida.dementiatest_frontend.main.models.ConnectPoints;
 import blog.aida.dementiatest_frontend.main.models.Line;
-
-import static android.graphics.Color.RED;
 
 /**
  * Created by aida on 16-May-18.
@@ -253,11 +248,7 @@ public class DragAndDropView extends View implements CanvasBasedView{
                             delta_y = 0;
                         }
 
-                        movingLine.getA().x = (int) (movingLineMiddle.x + delta_x);
-                        movingLine.getA().y = (int) (movingLineMiddle.y + delta_y);
-
-                        movingLine.getB().x = (int) (movingLineMiddle.x - delta_x);
-                        movingLine.getB().y = (int) (movingLineMiddle.y - delta_y);
+                        calculateNewCoordinatesAfterRotation(event,delta_x,delta_y);
 
                         movingLine.calculateLineFunctionParameters();
 
@@ -311,6 +302,40 @@ public class DragAndDropView extends View implements CanvasBasedView{
 //                Toast.makeText(getContext(),"Am dat click pe o linie", Toast.LENGTH_SHORT).show();
 
         return (true);
+    }
+
+    private void calculateNewCoordinatesAfterRotation(MotionEvent event, double delta_x, double delta_y) {
+
+        movingLine.getA().x = (int) (movingLineMiddle.x + delta_x);
+        movingLine.getB().x = (int) (movingLineMiddle.x - delta_x);
+
+        if(event.getX(0) >= movingLineMiddle.x) {
+            if( event.getY(0) <= movingLineMiddle.y ) {
+                movingLine.getA().y = (int) (movingLineMiddle.y - delta_y);
+            } else {
+                movingLine.getA().y = (int) (movingLineMiddle.y + delta_y);
+            }
+        } else {
+            if( event.getY(0) <= movingLineMiddle.y ) {
+                movingLine.getB().y = (int) (movingLineMiddle.y - delta_y);
+            } else {
+                movingLine.getB().y = (int) (movingLineMiddle.y + delta_y);
+            }
+        }
+
+        if(event.getX(1) >= movingLineMiddle.x) {
+            if( event.getY(1) <= movingLineMiddle.y ) {
+                movingLine.getA().y = (int) (movingLineMiddle.y - delta_y);
+            } else {
+                movingLine.getA().y = (int) (movingLineMiddle.y + delta_y);
+            }
+        } else {
+            if( event.getY(1) <= movingLineMiddle.y ) {
+                movingLine.getB().y = (int) (movingLineMiddle.y - delta_y);
+            } else {
+                movingLine.getB().y = (int) (movingLineMiddle.y + delta_y);
+            }
+        }
     }
 
     private Point getMiddlePointOfLine(Line movingLine) {
