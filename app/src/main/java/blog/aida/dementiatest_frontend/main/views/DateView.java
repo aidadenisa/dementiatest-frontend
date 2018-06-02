@@ -70,21 +70,28 @@ public class DateView {
     }
 
     public String getValuesInString() {
+        int years;
+        int months;
+        int days;
+
         try {
-            int years = Integer.parseInt(yearInput.getText().toString());
-            int months = Integer.parseInt(monthInput.getText().toString());
-            int days = Integer.parseInt(dateInput.getText().toString());
-
-            Calendar c = Calendar.getInstance();
-            c.set(years, months - 1, days, 0, 0);
-
-            return c.getTimeInMillis()+"";
-
+            years = Integer.parseInt(yearInput.getText().toString());
         } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(context,"Do not leave the fields empty", Toast.LENGTH_SHORT).show();
+            years = 2000;
         }
 
-        return "";
+        try {
+            months = Integer.parseInt(monthInput.getText().toString());
+        } catch (Exception e) {
+            months = Math.abs(new Date().getMonth() - 1);
+        }
+
+        try {
+            days = Integer.parseInt(dateInput.getText().toString());
+        } catch (Exception e) {
+            days = Math.abs(new Date().getDay() - 15);
+        }
+
+        return years+"-"+months+"-"+days;
     }
 }

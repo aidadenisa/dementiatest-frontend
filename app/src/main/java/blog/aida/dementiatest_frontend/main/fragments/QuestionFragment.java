@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -24,19 +25,28 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import blog.aida.dementiatest_frontend.R;
+import blog.aida.dementiatest_frontend.main.activities.TestResultActivity;
 import blog.aida.dementiatest_frontend.main.interfaces.CanvasBasedView;
 import blog.aida.dementiatest_frontend.main.activities.TestActivity;
 import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
 import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.ConnectPoints;
+import blog.aida.dementiatest_frontend.main.models.Test;
 import blog.aida.dementiatest_frontend.main.requests.PostRequest;
 import blog.aida.dementiatest_frontend.main.services.TestUtils;
+import blog.aida.dementiatest_frontend.main.services.ToolbarManager;
 import blog.aida.dementiatest_frontend.main.views.ConnectPointsView;
 import blog.aida.dementiatest_frontend.main.views.DateView;
 import blog.aida.dementiatest_frontend.main.views.DragAndDropView;
@@ -49,6 +59,7 @@ import blog.aida.dementiatest_frontend.main.views.SingleInputView;
 
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_ARRAY;
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_OBJECT;
 
 /**
  * Created by aida on 04-May-18.
@@ -110,6 +121,8 @@ public class QuestionFragment extends Fragment {
 
             Button saveButton = view.findViewById(R.id.dementia_test_submit_btn);
 
+            final ProgressBar spinner = view.findViewById(R.id.spinner);
+
             saveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -117,8 +130,9 @@ public class QuestionFragment extends Fragment {
                     List<Answer> answers = ((TestActivity)context).getAnswers();
                     final int patientId = ((TestActivity)context).getPatientId();
                     int testConfigurationId = ((TestActivity)context).getTestConfigurationId();
-
                     RequestQueue queue = Volley.newRequestQueue(context);
+
+                    spinner.setVisibility(View.VISIBLE);
 
                     PostRequest submitAnswers = new PostRequest(
                             answers,
@@ -128,21 +142,32 @@ public class QuestionFragment extends Fragment {
                                 @Override
                                 public void onResponse(JSONObject response) {
 
-                                    Intent testsBoardIntent = new Intent(context, TestsBoardActivity.class);
-                                    testsBoardIntent.putExtra("PATIENT_ID", patientId+ "");
-                                    context.startActivity(testsBoardIntent);
+                                    Gson gson = new Gson();
+                                    Test test = new Test();
+
+                                    try {
+                                        test = gson.fromJson(response.get("data").toString(), Test.class);
+
+                                        Intent testResultIntent = new Intent(context, TestResultActivity.class);
+                                        testResultIntent.putExtra("TEST_SCORE", test.getScore() + "");
+                                        context.startActivity(testResultIntent);
+
+                                        spinner.setVisibility(View.INVISIBLE);
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
 
                                 }
                             },
                             new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
-                                    int a=2;
-
+                                    spinner.setVisibility(View.INVISIBLE);
                                 }
                             },
                             getActivity(),
-                            RESPONSE_TYPE_ARRAY
+                            RESPONSE_TYPE_OBJECT
                     );
 
                     submitAnswers.setRetryPolicy(new DefaultRetryPolicy(
@@ -157,11 +182,7 @@ public class QuestionFragment extends Fragment {
         } else {
             view = inflater.inflate(R.layout.fragmet_test_question, container, false);
 
-            Toolbar toolbar = view.findViewById(R.id.toolbar);
-            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
-            if(((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
-                ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
-            }
+            ToolbarManager.setupToolbar(view,(AppCompatActivity) getActivity());
 
             TextView testTitle = view.findViewById(R.id.test_name_in_question_fragment);
             testTitle.setText(testName);

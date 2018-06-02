@@ -41,6 +41,7 @@ import blog.aida.dementiatest_frontend.main.requests.PostRequest;
 import blog.aida.dementiatest_frontend.main.requests.VolleyCallback;
 import blog.aida.dementiatest_frontend.main.services.FontManager;
 import blog.aida.dementiatest_frontend.main.services.PatientService;
+import blog.aida.dementiatest_frontend.main.services.ToolbarManager;
 
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_ARRAY;
@@ -65,18 +66,7 @@ public class PersonalInformationTestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_information_test);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-
-        if(toolbar.findViewById(R.id.toolbar_title_dementia) != null ) {
-            ((TextView)toolbar.findViewById(R.id.toolbar_title_dementia)).setTypeface(FontManager.getTypeface(this,FontManager.MerriweatherBold));
-        }
-        if(toolbar.findViewById(R.id.toolbar_title_test) != null ) {
-            ((TextView)toolbar.findViewById(R.id.toolbar_title_test)).setTypeface(FontManager.getTypeface(this,FontManager.LatoRegular));
-        }
-        setSupportActionBar(toolbar);
-        if(getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-        }
+        ToolbarManager.setupToolbar(this);
 
         recyclerView = (RecyclerView) findViewById(R.id.personal_info_questions_recycler_view);
         // use this setting to

@@ -21,7 +21,8 @@
         <activity android:name=".login.activities.RegisterActivity" />
         <activity android:name=".main.activities.PersonalInformationTestActivity" />
         <activity android:name=".main.activities.TestsBoardActivity" />
-        <activity android:name=".main.activities.TestActivity"></activity>
+        <activity android:name=".main.activities.TestActivity" />
+        <activity android:name=".main.activities.TestResultActivity"></activity>
     </application>
 
 </manifest>

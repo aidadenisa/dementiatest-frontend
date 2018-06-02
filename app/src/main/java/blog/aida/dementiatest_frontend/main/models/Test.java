@@ -10,6 +10,8 @@ public class Test {
 
     private TestConfiguration testConfiguration;
 
+    private int score;
+
     private Patient patient;
 
     public int getId() {
@@ -30,5 +32,13 @@ public class Test {
 
     public void setPatient(Patient patient) {
         this.patient = patient;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 }

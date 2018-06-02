@@ -34,9 +34,6 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-
         testConfig = (TestConfiguration) getIntent().getSerializableExtra("testConfig");
 
         patientId = getIntent().getStringExtra("patientId");

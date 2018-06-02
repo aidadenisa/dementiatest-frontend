@@ -85,8 +85,6 @@ public class PatientService {
                             } catch (JSONException e) {
                                 e.printStackTrace();
 
-                                createNewPatient(queue, userAccount, currentActivity);
-
                             }
                         }
                     }
@@ -96,7 +94,9 @@ public class PatientService {
                 public void onErrorResponse(VolleyError error) {
                     System.out.println("aida request response " + error.getMessage());
                     error.printStackTrace();
-                    createNewPatient(queue, userAccount, currentActivity);
+
+                    //TODO: CHECK IF THIS SHOULD BE UN-COMMENTED
+//                    createNewPatient(queue, userAccount, currentActivity);
                 }
             },
                 currentActivity,
