@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Response;
@@ -42,6 +43,11 @@ public class PostRequest extends JsonObjectRequest {
         gson = new GsonBuilder().create();
         this.body = gson.toJson(o);
         this.typeOfResponseExpected = typeOfResponseExpected;
+
+        this.setRetryPolicy(new DefaultRetryPolicy(
+                30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
 
     @Override
@@ -98,4 +104,5 @@ public class PostRequest extends JsonObjectRequest {
             return Response.error(new ParseError(je));
         }
     }
+
 }

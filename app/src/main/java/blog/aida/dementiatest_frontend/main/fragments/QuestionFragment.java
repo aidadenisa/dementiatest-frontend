@@ -150,6 +150,8 @@ public class QuestionFragment extends Fragment {
 
                                         Intent testResultIntent = new Intent(context, TestResultActivity.class);
                                         testResultIntent.putExtra("TEST_SCORE", test.getScore() + "");
+                                        testResultIntent.putExtra("PATIENT_ID", patientId+ "");
+
                                         context.startActivity(testResultIntent);
 
                                         spinner.setVisibility(View.INVISIBLE);
@@ -169,11 +171,6 @@ public class QuestionFragment extends Fragment {
                             getActivity(),
                             RESPONSE_TYPE_OBJECT
                     );
-
-                    submitAnswers.setRetryPolicy(new DefaultRetryPolicy(
-                            30000,
-                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                     queue.add(submitAnswers);
 
@@ -321,8 +318,8 @@ public class QuestionFragment extends Fragment {
 
         if(question.getDragAndDropConfiguration() != null && question.getDragAndDropConfiguration() && dragAndDropView != null) {
             byte[] drawing = dragAndDropView.getDrawing();
-            String bytes = new Gson().toJson(drawing);
-            return bytes;
+            String encodedDrawing = Base64.encodeToString(drawing, Base64.NO_WRAP);
+            return encodedDrawing;
         }
         return null;
     }
@@ -351,7 +348,7 @@ public class QuestionFragment extends Fragment {
 
     private void renderDragAndDropConfiguration() {
 
-        final DragAndDropView dragAndDropView = new DragAndDropView(context);
+        dragAndDropView = new DragAndDropView(context);
 
         addResetButton(dragAndDropView);
 

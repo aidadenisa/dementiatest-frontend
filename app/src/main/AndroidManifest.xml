@@ -22,7 +22,8 @@
         <activity android:name=".main.activities.PersonalInformationTestActivity" />
         <activity android:name=".main.activities.TestsBoardActivity" />
         <activity android:name=".main.activities.TestActivity" />
-        <activity android:name=".main.activities.TestResultActivity"></activity>
+        <activity android:name=".main.activities.TestResultActivity" />
+        <activity android:name=".main.activities.PatientsListActivity"></activity>
     </application>
 
 </manifest>

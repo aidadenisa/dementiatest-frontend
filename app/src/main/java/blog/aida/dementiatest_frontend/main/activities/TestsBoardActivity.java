@@ -78,7 +78,6 @@ public class TestsBoardActivity extends AppCompatActivity {
                                 for (int i = 0; i < data.length(); i++) {
                                     JSONObject currentTest = data.getJSONObject(i);
                                     TestConfiguration test = new Gson().fromJson(currentTest.toString(), TestConfiguration.class);
-//                                    Collections.sort(test.getQuestions());
                                     tests.add(test);
                                 }
 

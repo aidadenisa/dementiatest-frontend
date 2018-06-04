@@ -8,11 +8,9 @@ import android.content.SharedPreferences;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -29,9 +27,9 @@ import java.util.Map;
 import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.login.requests.LoginRequest;
 import blog.aida.dementiatest_frontend.login.validators.DataValidator;
-import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
-import blog.aida.dementiatest_frontend.main.models.Patient;
+import blog.aida.dementiatest_frontend.main.activities.PatientsListActivity;
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
+import blog.aida.dementiatest_frontend.main.services.DoctorService;
 import blog.aida.dementiatest_frontend.main.services.PatientService;
 
 public class LoginActivity extends AppCompatActivity {
@@ -45,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout passwordWrapper;
 
     private PatientService patientService;
+    private DoctorService doctorService;
     private RequestQueue queue;
 
     private Gson gson;
@@ -63,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordWrapper = (TextInputLayout) findViewById(R.id.textInputPass);
 
         patientService = new PatientService();
+        doctorService = new DoctorService();
         queue = Volley.newRequestQueue(LoginActivity.this);
 
         gson = new Gson();
@@ -159,6 +159,9 @@ public class LoginActivity extends AppCompatActivity {
 
         } else {
             //TODO: WHAT HAPPENS WHEN THIS IS A DOCTOR
+
+            doctorService.manageDoctorLogin(queue, loggedInUser, this);
+//
         }
 
 

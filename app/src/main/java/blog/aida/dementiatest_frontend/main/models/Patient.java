@@ -1,12 +1,15 @@
 package blog.aida.dementiatest_frontend.main.models;
 
+import java.io.Serializable;
 import java.util.List;
+
+import blog.aida.dementiatest_frontend.main.interfaces.Person;
 
 /**
  * Created by aida on 29-Apr-18.
  */
 
-public class Patient {
+public class Patient implements Serializable, Person {
 
     private int id;
 
@@ -42,5 +45,10 @@ public class Patient {
 
     public void setDoctors(List<Doctor> doctors) {
         this.doctors = doctors;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return userAccount.getFirstName() + " " + userAccount.getLastName();
     }
 }

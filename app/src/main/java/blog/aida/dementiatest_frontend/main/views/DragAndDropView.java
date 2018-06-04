@@ -309,7 +309,7 @@ public class DragAndDropView extends View implements CanvasBasedView{
         movingLine.getA().x = (int) (movingLineMiddle.x + delta_x);
         movingLine.getB().x = (int) (movingLineMiddle.x - delta_x);
 
-        if(event.getX(0) >= movingLineMiddle.x) {
+        if(event.getX(0) > movingLineMiddle.x) {
             if( event.getY(0) <= movingLineMiddle.y ) {
                 movingLine.getA().y = (int) (movingLineMiddle.y - delta_y);
             } else {
@@ -323,7 +323,7 @@ public class DragAndDropView extends View implements CanvasBasedView{
             }
         }
 
-        if(event.getX(1) >= movingLineMiddle.x) {
+        if(event.getX(1) > movingLineMiddle.x) {
             if( event.getY(1) <= movingLineMiddle.y ) {
                 movingLine.getA().y = (int) (movingLineMiddle.y - delta_y);
             } else {

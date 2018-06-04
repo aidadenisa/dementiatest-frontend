@@ -3,6 +3,7 @@ package blog.aida.dementiatest_frontend.main.services;
 import android.app.Activity;
 import android.content.Intent;
 
+import com.android.volley.ParseError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -22,6 +23,7 @@ import java.util.Date;
 
 import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
 import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
+import blog.aida.dementiatest_frontend.main.models.Doctor;
 import blog.aida.dementiatest_frontend.main.models.Patient;
 import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
@@ -39,9 +41,11 @@ import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPON
 public class PatientService {
 
     private Patient patient;
+    private GsonService gson;
 
     public PatientService() {
         patient = new Patient();
+        gson = new GsonService();
     }
 
     public void managePatientLogin(final RequestQueue queue, final UserAccount userAccount, final Activity currentActivity) {
@@ -94,9 +98,10 @@ public class PatientService {
                 public void onErrorResponse(VolleyError error) {
                     System.out.println("aida request response " + error.getMessage());
                     error.printStackTrace();
-
                     //TODO: CHECK IF THIS SHOULD BE UN-COMMENTED
-//                    createNewPatient(queue, userAccount, currentActivity);
+                    if(error.getClass().equals(ParseError.class)) {
+                        createNewPatient(queue, userAccount, currentActivity);
+                    }
                 }
             },
                 currentActivity,
@@ -104,31 +109,6 @@ public class PatientService {
         );
 
         queue.add(getPatientData);
-    }
-
-    public boolean isPersonalTestEmpty(int patientId, Activity currentActivity, RequestQueue queue) {
-
-        GetRequest getPersonalTestData = new GetRequest(
-                ///patient/{patientId}/testconfig/{testConfigId}
-                REQUEST_URL + "/patientId/" + patientId + "/testConfig/" + 100,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                },
-                currentActivity,
-
-                RESPONSE_TYPE_OBJECT
-        );
-
-        return true;
     }
 
     public void createNewPatient(final RequestQueue queue, final UserAccount loggedInUser, final Activity currentActivity) {
@@ -215,4 +195,40 @@ public class PatientService {
 
         queue.add(getPatientDataAfterLogin);
     }
+
+    public void savePatientOfDoctor(final RequestQueue queue, String patientId, Doctor doctor, Activity currentActivity, final VolleyCallback callback) {
+
+        PostRequest saveExistingPatientToDoctor = new PostRequest(
+                null,
+                REQUEST_URL + "/doctors/" + doctor.getId() + "/patients/" + patientId,
+                null,
+                new Response.Listener<org.json.JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+
+                            Gson builder = gson.getBuilder();
+                            callback.onSuccess(builder.fromJson(builder.toJson(response.get("data")),Patient.class));
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println("aida request response " + error.getMessage());
+                        error.printStackTrace();
+                    }
+                }, currentActivity,
+                RESPONSE_TYPE_OBJECT
+        );
+
+        queue.add(saveExistingPatientToDoctor);
+
+    }
+
 }
