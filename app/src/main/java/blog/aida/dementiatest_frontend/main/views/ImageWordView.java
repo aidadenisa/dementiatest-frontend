@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 
 import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.main.models.Question;
+import blog.aida.dementiatest_frontend.main.services.ImageManager;
 
 /**
  * Created by aida on 24-May-18.
@@ -30,26 +31,13 @@ public class ImageWordView {
         imageAnswer = new EditText(context);
 
         ImageView imageView = new ImageView(context);
-        imageView.setImageResource(getImageResourceFromName(imageName));
+        imageView.setImageResource(ImageManager.getImageResourceFromName(imageName));
 
         questionLayout.addView(imageView);
         questionLayout.addView(imageAnswer);
     }
 
-    private int getImageResourceFromName(String imageName) {
 
-        switch(imageName) {
-            case "wreath":
-                return R.drawable.wreath;
-
-            case "volcano":
-                return R.drawable.volcano;
-
-            default:
-                return -1;
-        }
-
-    }
 
     public String getWordAnswer() {
         return imageAnswer.getText().toString();

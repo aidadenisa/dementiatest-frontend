@@ -1,6 +1,8 @@
 package blog.aida.dementiatest_frontend.main.adapters;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +13,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import blog.aida.dementiatest_frontend.R;
+import blog.aida.dementiatest_frontend.main.activities.PatientTestSummaryActivity;
+import blog.aida.dementiatest_frontend.main.activities.PatientsListActivity;
 import blog.aida.dementiatest_frontend.main.activities.TestResultActivity;
 import blog.aida.dementiatest_frontend.main.interfaces.Person;
 import blog.aida.dementiatest_frontend.main.services.PatientService;
@@ -26,6 +30,8 @@ public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.Vi
     private Activity activity;
 
     private PatientService patientService;
+
+    private Context context;
 
     public PersonListAdapter(List<String> people, boolean arePatients, Activity currentActivity) {
         this.people = people;
@@ -53,6 +59,8 @@ public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.Vi
     @Override
     public PersonListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
+        this.context = parent.getContext();
+
         View view;
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         view = inflater.inflate(R.layout.list_item_people, parent, false);
@@ -64,12 +72,16 @@ public class PersonListAdapter extends RecyclerView.Adapter<PersonListAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
-
-
         holder.personName.setText(people.get(position));
 
         if(arePatients) {
             holder.personCallToAction.setText("See patient test >");
+            holder.personCallToAction.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((PatientsListActivity) activity).openTestSummary(position);
+                }
+            });
 
         } else {
             holder.personCallToAction.setBackgroundColor(activity.getResources().getColor(R.color.buttonBgColor));

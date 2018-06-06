@@ -1,10 +1,12 @@
 package blog.aida.dementiatest_frontend.main.models;
 
+import java.io.Serializable;
+
 /**
  * Created by aida on 29-Apr-18.
  */
 
-public class Answer {
+public class Answer implements Serializable{
 
 
     private int id;
@@ -16,6 +18,8 @@ public class Answer {
     private Question question;
 
     private String answer;
+
+    private int score;
 
     public Patient getPatient() {
         return patient;
@@ -47,5 +51,13 @@ public class Answer {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 }

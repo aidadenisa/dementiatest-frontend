@@ -36,13 +36,16 @@ public class DrawingView extends View implements CanvasBasedView{
 
     private Paint paint;
 
+    private boolean readOnly;
+
     private float x;
     private float y;
     private static final float TOUCH_TOLERANCE = 4;
 
-    public DrawingView(Context context, Paint paint) {
+    public DrawingView(Context context, Paint paint, boolean readQnly) {
         super(context);
         this.context=context;
+        this.readOnly = readQnly;
         path = new Path();
         bitmapPaint = new Paint(Paint.DITHER_FLAG);
         circlePaint = new Paint();
@@ -76,6 +79,10 @@ public class DrawingView extends View implements CanvasBasedView{
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+        if(readOnly) {
+            return;
+        }
 
         int height = Resources.getSystem().getDisplayMetrics().heightPixels;
         int width = Resources.getSystem().getDisplayMetrics().widthPixels;
@@ -180,6 +187,10 @@ public class DrawingView extends View implements CanvasBasedView{
 
         setDrawingCacheEnabled(true);
 
+    }
+
+    public void drawBitmap(Bitmap bitmap) {
+        canvas = new Canvas(bitmap);
     }
 }
 

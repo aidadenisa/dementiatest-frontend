@@ -382,7 +382,7 @@ public class QuestionFragment extends Fragment {
         paint.setStrokeCap(Paint.Cap.SQUARE);
         paint.setStrokeWidth(8);
 
-        drawingView = new DrawingView(context,paint);
+        drawingView = new DrawingView(context,paint, false);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);

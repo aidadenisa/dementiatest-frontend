@@ -13,16 +13,20 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
 import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
+import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.Doctor;
 import blog.aida.dementiatest_frontend.main.models.Patient;
 import blog.aida.dementiatest_frontend.main.models.Question;
@@ -32,6 +36,7 @@ import blog.aida.dementiatest_frontend.main.requests.PostRequest;
 import blog.aida.dementiatest_frontend.main.requests.VolleyCallback;
 
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.REQUEST_URL;
+import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_ARRAY;
 import static blog.aida.dementiatest_frontend.main.requests.NetworkConfig.RESPONSE_TYPE_OBJECT;
 
 /**
@@ -231,4 +236,44 @@ public class PatientService {
 
     }
 
+    public void getAnswersOfTakenTest(RequestQueue queue, int patientId, int testId, Activity currentActivity, final VolleyCallback callback) {
+
+        // /patient/{patientId}/test/{testId}/answers
+        GetRequest getPatientDataAfterLogin = new GetRequest(
+                REQUEST_URL + "/patient/" + patientId + "/test/" + testId + "/answers",
+                new Response.Listener<org.json.JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        JSONArray responseBody;
+
+                        if(response != null) {
+                            try {
+                                responseBody = response.getJSONArray("data");
+
+                                Type listType = new TypeToken<ArrayList<Answer>>(){}.getType();
+                                List<Answer> answers = gson.getBuilder().fromJson(responseBody.toString(), listType);
+
+                                callback.onSuccess(answers);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println("aida request response " + error.getMessage());
+                error.printStackTrace();
+            }
+        },
+                currentActivity,
+                RESPONSE_TYPE_ARRAY
+        );
+
+        queue.add(getPatientDataAfterLogin);
+
+    }
 }
