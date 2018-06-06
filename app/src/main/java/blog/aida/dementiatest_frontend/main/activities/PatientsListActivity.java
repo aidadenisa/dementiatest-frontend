@@ -1,6 +1,5 @@
 package blog.aida.dementiatest_frontend.main.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,10 +15,8 @@ import java.util.List;
 
 import blog.aida.dementiatest_frontend.R;
 import blog.aida.dementiatest_frontend.main.adapters.PersonListAdapter;
-import blog.aida.dementiatest_frontend.main.interfaces.Person;
 import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.Doctor;
-import blog.aida.dementiatest_frontend.main.models.Patient;
 import blog.aida.dementiatest_frontend.main.models.Test;
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
 import blog.aida.dementiatest_frontend.main.requests.VolleyCallback;

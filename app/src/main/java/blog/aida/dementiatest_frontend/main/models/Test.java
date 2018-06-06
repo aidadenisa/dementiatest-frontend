@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class Test implements Serializable{
 
-    private int id;
+    private long id;
 
     private TestConfiguration testConfiguration;
 
@@ -16,7 +16,7 @@ public class Test implements Serializable{
 
     private Patient patient;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

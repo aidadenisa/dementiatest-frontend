@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class UserAccount implements Serializable{
 
-    private int id;
+    private long id;
 
     private String hash;
 
@@ -26,7 +26,7 @@ public class UserAccount implements Serializable{
     // 0 - patient, 1 - doctor
     private int role;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

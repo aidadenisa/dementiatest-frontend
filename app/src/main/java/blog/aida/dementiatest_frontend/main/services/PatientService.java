@@ -29,7 +29,6 @@ import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
 import blog.aida.dementiatest_frontend.main.models.Answer;
 import blog.aida.dementiatest_frontend.main.models.Doctor;
 import blog.aida.dementiatest_frontend.main.models.Patient;
-import blog.aida.dementiatest_frontend.main.models.Question;
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
 import blog.aida.dementiatest_frontend.main.requests.GetRequest;
 import blog.aida.dementiatest_frontend.main.requests.PostRequest;
@@ -156,7 +155,7 @@ public class PatientService {
 
     }
 
-    public void getPatientData(final RequestQueue queue, final int userId, final Activity currentActivity, final VolleyCallback callback) {
+    public void getPatientData(final RequestQueue queue, final long userId, final Activity currentActivity, final VolleyCallback callback) {
 
         GetRequest getPatientDataAfterLogin = new GetRequest(
                 REQUEST_URL + "/users/" + userId + "/patient",
@@ -236,7 +235,7 @@ public class PatientService {
 
     }
 
-    public void getAnswersOfTakenTest(RequestQueue queue, int patientId, int testId, Activity currentActivity, final VolleyCallback callback) {
+    public void getAnswersOfTakenTest(RequestQueue queue, long patientId, long testId, Activity currentActivity, final VolleyCallback callback) {
 
         // /patient/{patientId}/test/{testId}/answers
         GetRequest getPatientDataAfterLogin = new GetRequest(

@@ -71,11 +71,11 @@ public class TestActivity extends AppCompatActivity {
         return answers;
     }
 
-    public int getTestConfigurationId() {
+    public long getTestConfigurationId() {
        return testConfig.getId();
     }
 
-    public int getPatientId() {
+    public long getPatientId() {
         return Integer.parseInt(patientId);
     }
 

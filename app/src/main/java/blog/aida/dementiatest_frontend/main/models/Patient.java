@@ -11,7 +11,7 @@ import blog.aida.dementiatest_frontend.main.interfaces.Person;
 
 public class Patient implements Serializable, Person {
 
-    private int id;
+    private long id;
 
     private UserAccount userAccount;
 
@@ -19,7 +19,7 @@ public class Patient implements Serializable, Person {
 
     private List<Doctor> doctors;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

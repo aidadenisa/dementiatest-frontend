@@ -18,12 +18,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import blog.aida.dementiatest_frontend.login.activities.LoginActivity;
 import blog.aida.dementiatest_frontend.main.activities.PatientsListActivity;
-import blog.aida.dementiatest_frontend.main.activities.PersonalInformationTestActivity;
-import blog.aida.dementiatest_frontend.main.activities.TestsBoardActivity;
 import blog.aida.dementiatest_frontend.main.models.Doctor;
-import blog.aida.dementiatest_frontend.main.models.Patient;
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
 import blog.aida.dementiatest_frontend.main.requests.GetRequest;
 import blog.aida.dementiatest_frontend.main.requests.PostRequest;

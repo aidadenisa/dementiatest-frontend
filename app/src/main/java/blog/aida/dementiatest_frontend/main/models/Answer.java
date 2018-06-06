@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class Answer implements Serializable{
 
 
-    private int id;
+    private long id;
 
     private Patient patient;
 

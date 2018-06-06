@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class ConnectPoints implements Serializable, Cloneable {
 
-    private int id;
+    private long id;
 
     private String code;
 
@@ -18,11 +18,11 @@ public class ConnectPoints implements Serializable, Cloneable {
 
     private int y;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

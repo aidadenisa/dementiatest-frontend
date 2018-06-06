@@ -11,17 +11,17 @@ import blog.aida.dementiatest_frontend.main.interfaces.Person;
 
 public class Doctor implements Serializable, Person {
 
-    private int id;
+    private long id;
 
     private UserAccount userAccount;
 
     private List<Patient> patients;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

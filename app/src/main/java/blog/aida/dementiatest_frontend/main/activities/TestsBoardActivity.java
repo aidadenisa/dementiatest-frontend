@@ -95,7 +95,6 @@ public class TestsBoardActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                         int a = 2;
                          error.printStackTrace();
                     }
                 },
@@ -106,9 +105,5 @@ public class TestsBoardActivity extends AppCompatActivity {
         queue.add(getTests);
 
 
-    }
-
-    public TestConfiguration getTestById(int testId) {
-        return tests.get(testId);
     }
 }

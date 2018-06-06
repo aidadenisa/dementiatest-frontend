@@ -1,7 +1,5 @@
 package blog.aida.dementiatest_frontend.main.models;
 
-import android.support.annotation.NonNull;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -11,7 +9,7 @@ import java.util.List;
 
 public class Question implements Serializable{
 
-    private int id;
+    private long id;
 
     private String text;
 
@@ -49,7 +47,7 @@ public class Question implements Serializable{
 //        private List<TestConfiguration> testConfigurations;
 
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

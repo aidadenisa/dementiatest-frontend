@@ -128,8 +128,8 @@ public class QuestionFragment extends Fragment {
                 public void onClick(View v) {
 
                     List<Answer> answers = ((TestActivity)context).getAnswers();
-                    final int patientId = ((TestActivity)context).getPatientId();
-                    int testConfigurationId = ((TestActivity)context).getTestConfigurationId();
+                    final long patientId = ((TestActivity)context).getPatientId();
+                    long testConfigurationId = ((TestActivity)context).getTestConfigurationId();
                     RequestQueue queue = Volley.newRequestQueue(context);
 
                     spinner.setVisibility(View.VISIBLE);
