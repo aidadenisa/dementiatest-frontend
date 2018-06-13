@@ -96,6 +96,12 @@ public class RegisterActivity extends AppCompatActivity {
         requiredFields.add(etPass1);
         requiredFields.add(etPass2);
 
+        setupEventListeners();
+
+    }
+
+    private void setupEventListeners() {
+
         btnRegister.setOnClickListener(new View.OnClickListener() {
 
             @Override

@@ -30,6 +30,7 @@ import blog.aida.dementiatest_frontend.login.validators.DataValidator;
 import blog.aida.dementiatest_frontend.main.activities.PatientsListActivity;
 import blog.aida.dementiatest_frontend.main.models.UserAccount;
 import blog.aida.dementiatest_frontend.main.services.DoctorService;
+import blog.aida.dementiatest_frontend.main.services.GsonService;
 import blog.aida.dementiatest_frontend.main.services.PatientService;
 
 public class LoginActivity extends AppCompatActivity {
@@ -65,7 +66,13 @@ public class LoginActivity extends AppCompatActivity {
         doctorService = new DoctorService();
         queue = Volley.newRequestQueue(LoginActivity.this);
 
-        gson = new Gson();
+        gson = new GsonService().getBuilder();
+
+        setupEventListeners();
+
+    }
+
+    private void setupEventListeners() {
 
         registerLink.setOnClickListener(new View.OnClickListener() {
 
@@ -99,16 +106,12 @@ public class LoginActivity extends AppCompatActivity {
 
                 LoginActivity.this.loginUser(newUser);
 
-
             }
         });
+
     }
 
     private void loginUser(final UserAccount newUser) {
-
-        Map<String,String> loginData = new HashMap<>();
-        loginData.put("email", newUser.getEmail());
-        loginData.put("hash", newUser.getHash());
 
         LoginRequest loginRequest = new LoginRequest(newUser, null, new Response.Listener<org.json.JSONObject>() {
             @Override
@@ -208,10 +211,4 @@ public class LoginActivity extends AppCompatActivity {
         edit.apply();
     }
 
-//    private String getToken() {
-//        SharedPreferences prefs = getSharedPreferences("userSettings",Context.MODE_PRIVATE);
-//        String tokennnn = prefs.getString("token","");
-//
-//        return tokennnn;
-//    }
 }
